@@ -12,6 +12,7 @@ import numpy as np
 import argparse
 import torch
 import pandas
+import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
@@ -44,7 +45,6 @@ logger = logging.getLogger(__name__)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 #warnings.filterwarnings("ignore", category=UndefinedMetricWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
-
 
 # dataset
 def load_dataset(args):
@@ -170,6 +170,29 @@ def data_loader(train, dev, test=None, batch_size=4, num_workers=1):
 	return train_loader, dev_loader, test_loader
 
 
+class ResNetEncoder(Encoder):
+	
+	'''
+	def __init__(
+        self,
+        encoded_size,
+        freeze=False,
+        verbose=True,
+        seed=123,
+        **kwargs,
+    ):
+	'''
+
+	def __init__(self):
+		super(ResNetEncoder,self).__init__()
+
+	self.cnn = torchvision.models.resnet18()
+	
+	def encode(self,x):
+		return self.cnn.forward(x)
+
+
+
 # CNN-LSTM 
 def train_model(args):
 
@@ -190,8 +213,11 @@ def train_model(args):
 	hidden_size = 10
     #n = 1000
 	#SEQ_LEN = 5
-	MAX_INT = 8
 	num_classes = 2
+
+	# Define input encoder
+	cnn_encoder = ResNetEncoder()
+	encode_dim = 512
 
 	# Define LSTM module
 	lstm_module = LSTMModule(
@@ -200,20 +226,14 @@ def train_model(args):
 		bidirectional=False,
 		verbose=False,
 		lstm_reduction="attention",
-		encoder=EmbeddingsEncoder,
-		#encoder_kwargs={"vocab_size": MAX_INT + 1},
+		encoder=cnn_encoder,
 		)
-
-	# Define input encoder
-	cnn_model = resnet.ResNet18()
-	encode_dim = 512
 
 	# Define end model
 	end_model = EndModel(
 		k=MAX_INT,
-		input_module=cnn_model,
-		middle_modules = lstm_module,
-		layer_out_dims=[encode_dim, MAX_INT],
+		input_module=lstm_module,
+		layer_out_dims=[encode_dim, num_classes],
 		optimizer="adam",
 		use_cuda=cuda,
 		batchnorm=True,
