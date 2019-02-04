@@ -24,6 +24,9 @@ from metal.modules import EmbeddingsEncoder, Encoder, LSTMModule
 import metal.contrib.modules.resnet_cifar10 as resnet
 
 from dataloaders.ukbb import UKBBCardiacMRI
+from models.frame.densenet_av import DenseNet3, densenet_40_12_bc
+#from models.mri import Dense4012FrameNet
+
 
 # is this needed?
 from dataloaders.ukbb import UKBBCardiacMRIMeta, UKBBCardiacMRICache, stratified_sample_dataset
@@ -170,26 +173,49 @@ def data_loader(train, dev, test=None, batch_size=4, num_workers=1):
 	return train_loader, dev_loader, test_loader
 
 
-class ResNetEncoder(Encoder):
+class FrameEncoder(Encoder):
 	
 	'''
-	def __init__(
-        self,
-        encoded_size,
-        freeze=False,
-        verbose=True,
-        seed=123,
-        **kwargs,
-    ):
-	'''
-
 	def __init__(self):
-		super(ResNetEncoder,self).__init__()
+		super(Encoder,self).__init__()
 
 	self.cnn = torchvision.models.resnet18()
-	
 	def encode(self,x):
 		return self.cnn.forward(x)
+	'''
+	# from Dense4012FrameNet class in mri.py
+	def __init__(self, **kwargs):
+		super(Encoder, self).__init__()
+		#self.n_classes  = n_classes
+		#self.use_cuda   = use_cuda
+		input_shape         = kwargs.get("input_shape", (3, 32, 32))
+		layers              = kwargs.get("layers", [64, 32])
+		dropout             = kwargs.get("dropout", 0.2)
+		pretrained          = kwargs.get("pretrained", True)
+		requires_grad       = kwargs.get("requires_grad", False)
+
+		self.cnn           = densenet_40_12_bc(pretrained=pretrained, requires_grad=requires_grad)
+		self.encoded_size     = self.get_frm_output_size(input_shape) # 132
+		#print('encode dim: ', self.encoded_size)
+		#self.classifier = self._make_classifier(encode_dim, n_classes, layers, dropout)
+
+	def get_frm_output_size(self, input_shape):
+		input_shape = list(input_shape)
+		input_shape.insert(0,1) # [1, 3, 32, 32]
+		#print(input_shape)
+
+		dummy_batch_size = tuple(input_shape)
+		x = torch.autograd.Variable(torch.zeros(dummy_batch_size))
+		
+		frm_output_size =  self.cnn.forward(x).size()[1]
+		#print(self.cnn.forward(x).size()) # [1,132,1,1]
+		
+		return frm_output_size
+
+	def encode(self,x):
+		return self.cnn.forward(x)    
+
+
 
 
 
@@ -206,22 +232,20 @@ def train_model(args):
 	#print('test size:',len(test)) # 90
 	# data in tuple of the form (series,label)
 	# series shape [30,1,32,32]
-
 	train_loader, dev_loader, test_loader = data_loader(train, dev, test, args.batch_size)
 
-	embed_size = 4
-	hidden_size = 10
-    #n = 1000
-	#SEQ_LEN = 5
+	hidden_size = 128 
 	num_classes = 2
 
 	# Define input encoder
-	cnn_encoder = ResNetEncoder()
-	encode_dim = 512
+	cnn_encoder = FrameEncoder()
+	
+	# using get_frm_output_size()
+	encode_dim = 132
 
 	# Define LSTM module
 	lstm_module = LSTMModule(
-		embed_size,
+		encode_dim,
 		hidden_size,
 		bidirectional=False,
 		verbose=False,
@@ -231,7 +255,6 @@ def train_model(args):
 
 	# Define end model
 	end_model = EndModel(
-		k=MAX_INT,
 		input_module=lstm_module,
 		layer_out_dims=[encode_dim, num_classes],
 		optimizer="adam",
