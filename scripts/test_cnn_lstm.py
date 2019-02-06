@@ -31,7 +31,6 @@ from models.frame.densenet_av import DenseNet3, densenet_40_12_bc
 # is this needed?
 from dataloaders.ukbb import UKBBCardiacMRIMeta, UKBBCardiacMRICache, stratified_sample_dataset
 
-# what functions are used from these? are these needed?
 from utils import *
 from metrics import *
 from dataloaders import *
@@ -161,8 +160,6 @@ def load_dataset(args):
 		return train, dev, test, classes
 
 
-
-
 # dataloader 
 def data_loader(train, dev, test=None, batch_size=4, num_workers=1):
 	
@@ -184,8 +181,8 @@ class FrameEncoder(Encoder):
 		return self.cnn.forward(x)
 	'''
 	# from Dense4012FrameNet class in mri.py
-	def __init__(self, **kwargs):
-		super(Encoder, self).__init__()
+	def __init__(self,encoded_size, **kwargs):
+		super().__init__(encoded_size)
 		#self.n_classes  = n_classes
 		#self.use_cuda   = use_cuda
 		input_shape         = kwargs.get("input_shape", (3, 32, 32))
@@ -213,10 +210,25 @@ class FrameEncoder(Encoder):
 		return frm_output_size
 
 	def encode(self,x):
-		return self.cnn.forward(x)    
+		
+		if (len(x.shape) == 5): # if 5D
+			n_batch,n_frame,ch,row,col = x.shape
 
+			# reshape from 5D (batch,frames,3,img_row, img_col) -> 4D (batch*frames,3,img_row, img_col)
+			x = np.reshape(x,(n_batch*n_frame,ch,row,col))
 
+			# forward pass
+			out = self.cnn.forward(x) # dim (batch*frames,encode_dim,1,1)
+			out = torch.squeeze(out) # dim (batch*frames,encode_dim)
 
+			# reshape from 4D (batch*frames,encode_dim) -> 5D (batch,frames,encode_dim)
+			encode_dim = out.shape[1]
+			out = torch.reshape(out,(n_batch,n_frame,encode_dim))
+			return out
+
+		# else
+		else : 
+			return self.cnn.forward(x)    
 
 
 # CNN-LSTM 
@@ -231,17 +243,17 @@ def train_model(args):
 	#print('dev size:',len(dev)) # 216
 	#print('test size:',len(test)) # 90
 	# data in tuple of the form (series,label)
-	# series shape [30,1,32,32]
+	# series shape [30,3,32,32]
 	train_loader, dev_loader, test_loader = data_loader(train, dev, test, args.batch_size)
 
 	hidden_size = 128 
 	num_classes = 2
-
-	# Define input encoder
-	cnn_encoder = FrameEncoder()
-	
 	# using get_frm_output_size()
 	encode_dim = 132
+
+	# Define input encoder
+	cnn_encoder = FrameEncoder
+
 
 	# Define LSTM module
 	lstm_module = LSTMModule(
@@ -250,8 +262,10 @@ def train_model(args):
 		bidirectional=False,
 		verbose=False,
 		lstm_reduction="attention",
-		encoder=cnn_encoder,
+		encoder_class=cnn_encoder,
 		)
+
+	#import ipdb; ipdb.set_trace()
 
 	# Define end model
 	end_model = EndModel(
@@ -374,5 +388,4 @@ if __name__ == "__main__":
 	logger.info("python " + " ".join(sys.argv))
 	print_key_pairs(args.__dict__.items(), title="Command Line Args")
 
-	#main(args)
 	train_model(args)
