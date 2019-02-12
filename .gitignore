@@ -1,5 +1,7 @@
 # ignoring data file
 data/
 # ignoring software repos
-metal/
-heart-mri-pytorch/
+#metal/
+#heart-mri-pytorch/
+scripts/__pycache__/
+scripts/checkpoints/
