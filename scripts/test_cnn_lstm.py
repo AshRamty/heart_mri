@@ -270,7 +270,7 @@ def train_model(args):
 	# Define end model
 	end_model = EndModel(
 		input_module=lstm_module,
-		layer_out_dims=[encode_dim, num_classes],
+		layer_out_dims=[hidden_size, num_classes],
 		optimizer="adam",
 		use_cuda=cuda,
 		batchnorm=True,
