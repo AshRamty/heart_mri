@@ -27,6 +27,7 @@ from dataloaders.ukbb import UKBBCardiacMRI
 from models.frame.densenet_av import DenseNet3, densenet_40_12_bc
 #from models.mri import Dense4012FrameNet
 
+from sampler import ImbalancedDatasetSampler
 
 # is this needed?
 from dataloaders.ukbb import UKBBCardiacMRIMeta, UKBBCardiacMRICache, stratified_sample_dataset
@@ -163,7 +164,8 @@ def load_dataset(args):
 # dataloader 
 def data_loader(train, dev, test=None, batch_size=4, num_workers=1):
 	
-	train_loader = DataLoader(train, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+	#train_loader = DataLoader(train, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+	train_loader = DataLoader(train,sampler=ImbalancedDatasetSampler(train), batch_size=batch_size, num_workers=num_workers)
 	dev_loader   = DataLoader(dev, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 	test_loader  = None if not test else DataLoader(test, batch_size=batch_size,shuffle=False, num_workers=num_workers)
 
@@ -244,6 +246,9 @@ def train_model(args):
 	#print('test size:',len(test)) # 90
 	# data in tuple of the form (series,label)
 	# series shape [30,3,32,32]
+
+	#import pdb; pdb.set_trace()
+
 	train_loader, dev_loader, test_loader = data_loader(train, dev, test, args.batch_size)
 
 	hidden_size = 128 
@@ -286,13 +291,12 @@ def train_model(args):
 		lr=args.lr,
 		n_epochs=args.n_epochs,
 		print_every=1,
-		verbose=False,
+		verbose=True,
 		)
 
 	# Test end model
-	end_model.score(
-		test_loader, verbose=False
-		)
+	if(test_loader != None):
+		end_model.score(test_loader, verbose=True)
 
 
 
