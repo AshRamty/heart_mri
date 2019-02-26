@@ -1,5 +1,5 @@
 """
-Tests MeTaL CNN-LSTM module using BAV data
+MeTaL CNN-LSTM module using BAV data
 
 """
 
@@ -22,10 +22,13 @@ from torch.utils.data import Dataset, DataLoader
 from metal.end_model import EndModel
 from metal.contrib.modules import Encoder, LSTMModule
 import metal.contrib.modules.resnet_cifar10 as resnet
+from metal.tuners.random_tuner import RandomSearchTuner
+
+from metal.logging import LogWriter
+from metal.logging.tensorboard import TensorBoardWriter
 
 from dataloaders.ukbb import UKBBCardiacMRI
 from models.frame.densenet_av import DenseNet3, densenet_40_12_bc
-
 from sampler import ImbalancedDatasetSampler
 
 from utils import *
@@ -222,8 +225,8 @@ class FrameEncoder(Encoder):
 # CNN-LSTM 
 def train_model(args):
 
-    #global args
-    #args = parser.parse_args()
+	#global args
+	#args = parser.parse_args()
 
 	# Create datasets and dataloaders
 	train, dev, test, classes = load_dataset(args)
@@ -232,8 +235,6 @@ def train_model(args):
 	#print('test size:',len(test)) # 90
 	# data in tuple of the form (series,label)
 	# series shape [30,3,32,32]
-
-	#import pdb; pdb.set_trace()
 
 	train_loader, dev_loader, test_loader = data_loader(train, dev, test, args.batch_size)
 
@@ -245,7 +246,6 @@ def train_model(args):
 	# Define input encoder
 	cnn_encoder = FrameEncoder
 
-
 	# Define LSTM module
 	lstm_module = LSTMModule(
 		encode_dim,
@@ -256,35 +256,72 @@ def train_model(args):
 		encoder_class=cnn_encoder,
 		)
 
-	# Define end model
-	end_model = EndModel(
-		input_module=lstm_module,
-		layer_out_dims=[hidden_size, num_classes],
-		optimizer="adam",
-		use_cuda=cuda,
-		batchnorm=True,
-		seed=123,
-		verbose=False,
-		)
+	#import ipdb; ipdb.set_trace()
 
-	# Train end model
-	end_model.train_model(
-		train_data=train_loader,
-		valid_data=dev_loader,
-		l2=args.weight_decay,
-		lr=args.lr,
-		n_epochs=args.n_epochs,
-		log_train_every=1,
-		verbose=True,
-		validation_metric="f1",
-		)
 
-	# Test end model 
+	train_args = [train_loader]
+
+	init_args = [
+	[hidden_size, num_classes]
+	]
+
+	init_kwargs = {
+	"input_module": lstm_module, 
+	"optimizer": "adam",
+	"input_batchnorm": True,
+	"use_cuda":torch.cuda.is_available(),
+	'seed':123}
+
+	train_kwargs = {}
+
+	validation_metric = 'accuracy'
 	'''
-	if(test_loader != None):
-		end_model.score(test_loader, verbose=True, metric=['accuracy', 'precision', 'recall', 'f1'])
-
+	search_space = {
+	'seed' : [123],
+	'n_epochs': [5],
+	'batchnorm' : [True],
+	'dropout': [0],
+	'lr': [1e-3],
+	'print_every': 1,
+	}
 	'''
+	search_space = {
+	'seed' : [123],
+	'n_epochs': [10, 50, 100],
+	'batchnorm' : [True, False],
+	'dropout': [0, .1, .2, .3, .4, .5],
+	'lr': {'range': [1e-5, 1], 'scale': 'log'},
+	'print_every': 1,
+	#'data_loader_config': [{"batch_size": 256, "num_workers": 1}],
+	}
+
+	log_config = {
+	"log_dir": "./run_logs", 
+	"run_name": 'cnn_lstm_bav'
+	}
+
+	tuner_config = {"max_search": 1}
+
+	# Set up logger and searcher
+	tuner = RandomSearchTuner(	EndModel, 
+								**log_config, 
+								log_writer_class=TensorBoardWriter, 
+								validation_metric=validation_metric,
+								seed=1701)
+	
+	disc_model = tuner.search(
+	search_space,
+	valid_data = dev_loader,
+	train_args=train_args,
+	init_args=init_args,
+	init_kwargs=init_kwargs,
+	train_kwargs=train_kwargs,
+	max_search=tuner_config["max_search"],
+	clean_up=False
+	)
+
+	#import ipdb; ipdb.set_trace()
+
 
 if __name__ == "__main__":
 	# Checking to see if cuda is available for GPU use
@@ -292,6 +329,8 @@ if __name__ == "__main__":
 
 	# Parsing command line arguments
 	argparser = argparse.ArgumentParser(description="Training CNN LSTM on BAV data")
+	#parser.add_argument( "--epochs", default=1, type=int, help="number of total epochs to run" )
+	#parser.add_argument("-b","--batch-size", default=4, type=int, help="mini-batch size (default: 4)")
 	argparser.add_argument("--lr","--learning-rate",default=0.001,type=float,help="initial learning rate")
 	argparser.add_argument("--momentum", default=0.9, type=float, help="momentum")
 	argparser.add_argument("--weight-decay","--wd",default=1e-4,type=float,help="weight decay (default: 1e-4)")
