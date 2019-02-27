@@ -289,7 +289,8 @@ def train_model(args):
 if __name__ == "__main__":
 	# Checking to see if cuda is available for GPU use
 	cuda = torch.cuda.is_available()
-
+	print(cuda)
+	
 	# Parsing command line arguments
 	argparser = argparse.ArgumentParser(description="Training CNN LSTM on BAV data")
 	argparser.add_argument("--lr","--learning-rate",default=0.001,type=float,help="initial learning rate")
