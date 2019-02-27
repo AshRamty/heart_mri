@@ -291,7 +291,8 @@ def train_model(args):
 	'batchnorm' : [True, False],
 	'dropout': [0, .1, .2, .3, .4, .5],
 	'lr': {'range': [1e-5, 1], 'scale': 'log'},
-	'print_every': 1,
+	'l2':{'range': [1e-6, 1e-3], 'scale': 'log'},
+	'print_every': 5,
 	#'data_loader_config': [{"batch_size": 256, "num_workers": 1}],
 	}
 
@@ -300,7 +301,7 @@ def train_model(args):
 	"run_name": 'cnn_lstm_bav'
 	}
 
-	tuner_config = {"max_search": 1}
+	tuner_config = {"max_search": 25}
 
 	# Set up logger and searcher
 	tuner = RandomSearchTuner(	EndModel, 
