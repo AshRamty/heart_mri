@@ -276,8 +276,10 @@ def train_model(args):
 		n_epochs=args.n_epochs,
 		log_train_every=1,
 		verbose=True,
+		batchnorm = 'True',
 		validation_metric='roc-auc',
 		)
+	# how to add kwargs dropout? 
 
 	end_model.score(dev_loader, verbose=True, metric=['accuracy', 'precision', 'recall', 'f1','roc-auc'])
 	# Test end model 

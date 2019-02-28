@@ -289,11 +289,11 @@ def train_model(args):
 	'''
 	search_space = {
 	'seed' : [123],
-	'n_epochs': [10, 50, 100],
+	'n_epochs': [30, 50, 100],
 	'batchnorm' : [True, False],
 	'dropout': [0, .1, .2, .3, .4, .5],
-	'lr': {'range': [1e-5, 1], 'scale': 'log'},
-	'l2':{'range': [1e-6, 1e-3], 'scale': 'log'},
+	'lr': {'range': [1e-3, 1], 'scale': 'log'},
+	'l2':{'range': [1e-5, 1e-3], 'scale': 'log'},
 	'log_train_every': 1,
 	'validation_metric': 'f1',
 	}
