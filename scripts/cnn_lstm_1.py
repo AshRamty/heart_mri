@@ -240,8 +240,7 @@ def train_model(args):
 
 	hidden_size = 128 
 	num_classes = 2
-	# using get_frm_output_size()
-	encode_dim = 132
+	encode_dim = 132 # using get_frm_output_size()
 
 	# Define input encoder
 	cnn_encoder = FrameEncoder
@@ -261,6 +260,8 @@ def train_model(args):
 
 	train_args = [train_loader]
 
+	train_kwargs = {}
+
 	init_args = [
 	[hidden_size, num_classes]
 	]
@@ -272,9 +273,9 @@ def train_model(args):
 	"use_cuda":torch.cuda.is_available(),
 	'seed':123}
 
-	train_kwargs = {}
 
 	validation_metric = 'accuracy'
+	
 	'''
 	search_space = {
 	'seed' : [123],
@@ -282,7 +283,8 @@ def train_model(args):
 	'batchnorm' : [True],
 	'dropout': [0],
 	'lr': [1e-3],
-	'print_every': 1,
+	'log_train_every': 1,
+	'validation_metric': 'f1',
 	}
 	'''
 	search_space = {
@@ -292,8 +294,8 @@ def train_model(args):
 	'dropout': [0, .1, .2, .3, .4, .5],
 	'lr': {'range': [1e-5, 1], 'scale': 'log'},
 	'l2':{'range': [1e-6, 1e-3], 'scale': 'log'},
-	'print_every': 5,
-	#'data_loader_config': [{"batch_size": 256, "num_workers": 1}],
+	'log_train_every': 1,
+	'validation_metric': 'f1',
 	}
 
 	log_config = {
@@ -301,7 +303,8 @@ def train_model(args):
 	"run_name": 'cnn_lstm_bav'
 	}
 
-	tuner_config = {"max_search": 25}
+	max_search = 1
+	tuner_config = {"max_search": max_search}
 
 	# Set up logger and searcher
 	tuner = RandomSearchTuner(	EndModel, 

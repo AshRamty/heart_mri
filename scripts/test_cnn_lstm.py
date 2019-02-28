@@ -276,9 +276,10 @@ def train_model(args):
 		n_epochs=args.n_epochs,
 		log_train_every=1,
 		verbose=True,
-		validation_metric="f1",
+		validation_metric='roc-auc',
 		)
 
+	end_model.score(dev_loader, verbose=True, metric=['accuracy', 'precision', 'recall', 'f1','roc-auc'])
 	# Test end model 
 	'''
 	if(test_loader != None):
@@ -289,7 +290,7 @@ def train_model(args):
 if __name__ == "__main__":
 	# Checking to see if cuda is available for GPU use
 	cuda = torch.cuda.is_available()
-	print(cuda)
+	#print(cuda)
 	
 	# Parsing command line arguments
 	argparser = argparse.ArgumentParser(description="Training CNN LSTM on BAV data")
