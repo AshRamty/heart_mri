@@ -272,9 +272,6 @@ def train_model(args):
 	"input_batchnorm": True,
 	"use_cuda":torch.cuda.is_available(),
 	'seed':123}
-
-
-	validation_metric = 'accuracy'
 	
 	'''
 	search_space = {
@@ -295,7 +292,9 @@ def train_model(args):
 	'lr': {'range': [1e-3, 1], 'scale': 'log'},
 	'l2':{'range': [1e-5, 1e-3], 'scale': 'log'},
 	'log_train_every': 1,
-	'validation_metric': 'f1',
+	#'validation_metric': ['f1'],
+	'validation_metric':[['roc-auc', 'accuracy', 'precision', 'recall', 'f1']]
+	'verbose': [False],
 	}
 
 	log_config = {
@@ -304,7 +303,9 @@ def train_model(args):
 	}
 
 	max_search = 1
-	tuner_config = {"max_search": max_search}
+	tuner_config = {"max_search": max_search }
+
+	validation_metric = 'roc-auc'
 
 	# Set up logger and searcher
 	tuner = RandomSearchTuner(	EndModel, 
