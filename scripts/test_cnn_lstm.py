@@ -276,7 +276,7 @@ def train_model(args):
 		n_epochs=args.n_epochs,
 		log_train_every=1,
 		verbose=True,
-		loss_weights = [0.8,0.2],
+		loss_weights = [0.04,0.96],
 		batchnorm = 'True',
 		input_dropout = 0.1,
 		middle_dropout = 0.1,

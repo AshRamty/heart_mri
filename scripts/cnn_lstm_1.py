@@ -283,7 +283,6 @@ def train_model(args):
 	'log_train_every': 1,
 	'validation_metric': 'f1',
 	}
-	'''
 	search_space = {
 	'seed' : [123],
 	'n_epochs': [30],
@@ -292,18 +291,29 @@ def train_model(args):
 	'lr': {'range': [1e-3, 1], 'scale': 'log'},
 	'l2':{'range': [1e-5, 1e-3], 'scale': 'log'},
 	'log_train_every': 1,
-	'loss_weights':{[0.2,0.8],[0.4,0.6],[0.6,0.4],[0.8,0.2]}
+	'loss_weights':[[0.2,0.8],[0.4,0.6],[0.6,0.4],[0.8,0.2]],
 	#'validation_metric': ['f1'],
-	'validation_metric':[['roc-auc', 'accuracy', 'precision', 'recall', 'f1']]
-	'verbose': [False],
+	'validation_metric':[['roc-auc', 'accuracy', 'precision', 'recall', 'f1']],
 	}
-
+	'''
+	search_space = {
+	'seed': [123],
+	'n_epochs':[100],
+	'batchnorm':[False],
+	'dropout': [0.4],
+	'lr':{'range': [1e-2, 1e-1], 'scale': 'log'}, 
+	'l2':{'range': [1e-5, 1e-4], 'scale': 'log'},#[ 1.21*1e-5],
+	'log_train_every':1,
+	'loss_weights':[[0.5,0.5],[0.4,0.6],[0.3,0.7],[0.2,0.8],[0.1,0.9]],
+	'validation_metric':[['roc-auc','accuracy','precision','recall','f1']],
+	}	
+	
 	log_config = {
 	"log_dir": "./run_logs", 
 	"run_name": 'cnn_lstm_bav'
 	}
 
-	max_search = 15
+	max_search = 10
 	tuner_config = {"max_search": max_search }
 
 	validation_metric = 'roc-auc'
