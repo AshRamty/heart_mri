@@ -269,6 +269,7 @@ def train_model(args):
 	init_kwargs = {
 	"input_module": lstm_module, 
 	"optimizer": "adam",
+	"verbose": False,
 	"input_batchnorm": True,
 	"use_cuda":torch.cuda.is_available(),
 	'seed':123}
@@ -298,13 +299,14 @@ def train_model(args):
 	'''
 	search_space = {
 	'seed': [123],
-	'n_epochs':[100],
+	'n_epochs':[30],
 	'batchnorm':[False],
 	'dropout': [0.4],
 	'lr':{'range': [1e-2, 1e-1], 'scale': 'log'}, 
 	'l2':{'range': [1e-5, 1e-4], 'scale': 'log'},#[ 1.21*1e-5],
 	'log_train_every':1,
-	'loss_weights':[[0.5,0.5],[0.4,0.6],[0.3,0.7],[0.2,0.8],[0.1,0.9]],
+	#'loss_weights':[[0.5,0.5],[0.4,0.6],[0.3,0.7],[0.2,0.8],[0.1,0.9]],
+	'loss_weights':[[0.96,0.04]],
 	'validation_metric':[['roc-auc','accuracy','precision','recall','f1']],
 	}	
 	
@@ -313,17 +315,17 @@ def train_model(args):
 	"run_name": 'cnn_lstm_bav'
 	}
 
-	max_search = 10
+	max_search = 5
 	tuner_config = {"max_search": max_search }
 
 	validation_metric = 'roc-auc'
 
 	# Set up logger and searcher
-	tuner = RandomSearchTuner(	EndModel, 
-								**log_config, 
-								log_writer_class=TensorBoardWriter, 
-								validation_metric=validation_metric,
-								seed=1701)
+	tuner = RandomSearchTuner(EndModel, 
+	**log_config,
+	log_writer_class=TensorBoardWriter,
+	validation_metric=validation_metric,
+	seed=1701)
 	
 	disc_model = tuner.search(
 	search_space,
@@ -333,7 +335,7 @@ def train_model(args):
 	init_kwargs=init_kwargs,
 	train_kwargs=train_kwargs,
 	max_search=tuner_config["max_search"],
-	clean_up=False
+	clean_up=False,
 	)
 
 	#import ipdb; ipdb.set_trace()
