@@ -276,8 +276,11 @@ def train_model(args):
 		n_epochs=args.n_epochs,
 		log_train_every=1,
 		verbose=True,
+		loss_weights = [0.8,0.2],
 		batchnorm = 'True',
-		validation_metric='roc-auc',
+		input_dropout = 0.1,
+		middle_dropout = 0.1,
+		validation_metric='accuracy',
 		)
 	# how to add kwargs dropout? 
 

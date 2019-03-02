@@ -286,12 +286,13 @@ def train_model(args):
 	'''
 	search_space = {
 	'seed' : [123],
-	'n_epochs': [30, 50, 100],
+	'n_epochs': [30],
 	'batchnorm' : [True, False],
-	'dropout': [0, .1, .2, .3, .4, .5],
+	'dropout': [0.1,0.25,0.5],
 	'lr': {'range': [1e-3, 1], 'scale': 'log'},
 	'l2':{'range': [1e-5, 1e-3], 'scale': 'log'},
 	'log_train_every': 1,
+	'loss_weights':{[0.2,0.8],[0.4,0.6],[0.6,0.4],[0.8,0.2]}
 	#'validation_metric': ['f1'],
 	'validation_metric':[['roc-auc', 'accuracy', 'precision', 'recall', 'f1']]
 	'verbose': [False],
@@ -302,7 +303,7 @@ def train_model(args):
 	"run_name": 'cnn_lstm_bav'
 	}
 
-	max_search = 1
+	max_search = 15
 	tuner_config = {"max_search": max_search }
 
 	validation_metric = 'roc-auc'
