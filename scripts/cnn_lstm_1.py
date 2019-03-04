@@ -292,10 +292,9 @@ def train_model(args):
 	'lr': {'range': [1e-3, 1], 'scale': 'log'},
 	'l2':{'range': [1e-5, 1e-3], 'scale': 'log'},
 	'log_train_every': 1,
-	'loss_weights':{[0.2,0.8],[0.4,0.6],[0.6,0.4],[0.8,0.2]}
+	'loss_weights':[[0.2,0.8],[0.4,0.6],[0.6,0.4],[0.8,0.2]],
 	#'validation_metric': ['f1'],
-	'validation_metric':[['roc-auc', 'accuracy', 'precision', 'recall', 'f1']]
-	'verbose': [False],
+	'validation_metric':[['roc-auc', 'accuracy', 'precision', 'recall', 'f1']],
 	}
 
 	log_config = {

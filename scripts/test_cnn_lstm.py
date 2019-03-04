@@ -276,13 +276,12 @@ def train_model(args):
 		n_epochs=args.n_epochs,
 		log_train_every=1,
 		verbose=True,
-		loss_weights = [0.8,0.2],
+		loss_weights = [0.96,0.04],
 		batchnorm = 'True',
 		input_dropout = 0.1,
 		middle_dropout = 0.1,
 		validation_metric='accuracy',
 		)
-	# how to add kwargs dropout? 
 
 	end_model.score(dev_loader, verbose=True, metric=['accuracy', 'precision', 'recall', 'f1','roc-auc'])
 	# Test end model 
