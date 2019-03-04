@@ -299,15 +299,15 @@ def train_model(args):
 	'''
 	search_space = {
 	'seed': [123],
-	'n_epochs':[30],
-	'batchnorm':[False],
-	'dropout': [0.4],
-	'lr':{'range': [1e-2, 1e-1], 'scale': 'log'}, 
+	'n_epochs':[3],
+	'batchnorm':[True],
+	'dropout': [0.1,0.25,0.4],
+	'lr':{'range': [1e-3, 1e-2], 'scale': 'log'}, 
 	'l2':{'range': [1e-5, 1e-4], 'scale': 'log'},#[ 1.21*1e-5],
 	'log_train_every':1,
 	#'loss_weights':[[0.5,0.5],[0.4,0.6],[0.3,0.7],[0.2,0.8],[0.1,0.9]],
-	'loss_weights':[[0.96,0.04]],
-	'validation_metric':[['roc-auc','accuracy','precision','recall','f1']],
+	'loss_weights':[[0.02, 0.98 ]],
+	#'validation_metric':[['roc-auc','accuracy','precision','recall','f1']],
 	}	
 	
 	log_config = {
@@ -318,7 +318,7 @@ def train_model(args):
 	max_search = 5
 	tuner_config = {"max_search": max_search }
 
-	validation_metric = 'roc-auc'
+	validation_metric = 'f1'
 
 	# Set up logger and searcher
 	tuner = RandomSearchTuner(EndModel, 
