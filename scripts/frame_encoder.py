@@ -18,8 +18,6 @@ from torch.utils.data import Dataset, DataLoader
 from metal.end_model import EndModel
 from metal.contrib.modules import Encoder, LSTMModule
 import metal.contrib.modules.resnet_cifar10 as resnet
-
-from dataloaders.ukbb import UKBBCardiacMRI
 from models.frame.densenet_av import DenseNet3, densenet_40_12_bc
 
 
@@ -87,10 +85,11 @@ class FrameEncoderOC(Encoder):
 		requires_grad	= kwargs.get("requires_grad", False)
 
 		#self.cnn           = densenet_40_12_bc(pretrained=pretrained, requires_grad=requires_grad)
-		if(self.use_cuda):
-			self.cnn = models.resnet34(pretrained=pretrained).cuda()
-		else:
-			self.cnn = models.resnet34(pretrained=pretrained) # try densenet121 
+		self.cnn = models.resnet34(pretrained=pretrained)
+		#if(self.use_cuda):
+		#	self.cnn = models.resnet34(pretrained=pretrained).cuda()
+		#else:
+		#	self.cnn = models.resnet34(pretrained=pretrained) # try densenet121 
 
 		self.encoded_size = self.get_frm_output_size(input_shape) # 1000
 		#print('encode dim: ', self.encoded_size)
@@ -102,8 +101,8 @@ class FrameEncoderOC(Encoder):
 
 		dummy_batch_size = tuple(input_shape)
 		x = torch.autograd.Variable(torch.zeros(dummy_batch_size))		
-		if(self.use_cuda):
-			x = x.cuda()
+		#if(self.use_cuda):
+		#	x = x.cuda()
 
 		out = self.cnn.forward(x) 
 		#print(out.shape) # [1,1000]
@@ -114,8 +113,8 @@ class FrameEncoderOC(Encoder):
 	def encode(self,x):
 		
 		x = x.float()
-		if(self.use_cuda):
-			x = x.cuda()
+		#if(self.use_cuda):
+		#	x = x.cuda()
 
 		if (len(x.shape) == 5): # if 5D
 			# reshape from 5D (batch,frames,3,img_row, img_col) -> 4D (batch*frames,3,img_row, img_col)

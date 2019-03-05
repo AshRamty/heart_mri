@@ -155,6 +155,10 @@ def train_model(args):
 	# Define input encoder
 	cnn_encoder = FrameEncoderOC
 
+	if(torch.cuda.is_available()):
+		device = 'gpu'
+	else:
+		device = 'cpu'
 	#import ipdb; ipdb.set_trace()
 
 	# Define LSTM module
@@ -176,6 +180,7 @@ def train_model(args):
 		batchnorm=True,
 		seed=123,
 		verbose=False,
+		device = device,
 		)
 
 	print('Training model')
