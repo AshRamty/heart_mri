@@ -25,6 +25,7 @@ import metal.contrib.modules.resnet_cifar10 as resnet
 
 from dataloaders.ukbb import UKBBCardiacMRI
 from models.frame.densenet_av import DenseNet3, densenet_40_12_bc
+from frame_encoder import FrameEncoderBAV
 
 from sampler import ImbalancedDatasetSampler
 
@@ -168,57 +169,6 @@ def data_loader(train, dev, test=None, batch_size=4, num_workers=1):
 	return train_loader, dev_loader, test_loader
 
 
-class FrameEncoder(Encoder):
-	
-	# from Dense4012FrameNet class in mri.py
-	def __init__(self,encoded_size, **kwargs):
-		super().__init__(encoded_size)
-		#self.n_classes  = n_classes
-		#self.use_cuda   = use_cuda
-		input_shape         = kwargs.get("input_shape", (3, 32, 32))
-		layers              = kwargs.get("layers", [64, 32])
-		dropout             = kwargs.get("dropout", 0.2)
-		pretrained          = kwargs.get("pretrained", True)
-		requires_grad       = kwargs.get("requires_grad", False)
-
-		self.cnn           = densenet_40_12_bc(pretrained=pretrained, requires_grad=requires_grad)
-		self.encoded_size     = self.get_frm_output_size(input_shape) # 132
-
-	def get_frm_output_size(self, input_shape):
-		input_shape = list(input_shape)
-		input_shape.insert(0,1) # [1, 3, 32, 32]
-		#print(input_shape)
-
-		dummy_batch_size = tuple(input_shape)
-		x = torch.autograd.Variable(torch.zeros(dummy_batch_size))
-		
-		frm_output_size =  self.cnn.forward(x).size()[1]
-		#print(self.cnn.forward(x).size()) # [1,132,1,1]
-		
-		return frm_output_size
-
-	def encode(self,x):
-		
-		if (len(x.shape) == 5): # if 5D
-			n_batch,n_frame,ch,row,col = x.shape
-
-			# reshape from 5D (batch,frames,3,img_row, img_col) -> 4D (batch*frames,3,img_row, img_col)
-			x = np.reshape(x,(n_batch*n_frame,ch,row,col))
-
-			# forward pass
-			out = self.cnn.forward(x) # dim (batch*frames,encode_dim,1,1)
-			out = torch.squeeze(out) # dim (batch*frames,encode_dim)
-
-			# reshape from 4D (batch*frames,encode_dim) -> 5D (batch,frames,encode_dim)
-			encode_dim = out.shape[1]
-			out = torch.reshape(out,(n_batch,n_frame,encode_dim))
-			return out
-
-		# else
-		else : 
-			return self.cnn.forward(x)    
-
-
 # CNN-LSTM 
 def train_model(args):
 
@@ -243,7 +193,7 @@ def train_model(args):
 	encode_dim = 132
 
 	# Define input encoder
-	cnn_encoder = FrameEncoder
+	cnn_encoder = FrameEncoderBAV
 
 
 	# Define LSTM module

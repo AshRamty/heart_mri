@@ -26,12 +26,15 @@ from torch.utils.data import Dataset, DataLoader
 from dataloader_4ch import UKBB_LAX_Roll
 from models.frame.densenet_av import densenet_40_12_bc
 from utils import *
+from frame_encoder import FrameEncoderBAV, FrameEncoderOC
 
 from metal.label_model import LabelModel
 from metal.label_model.baselines import MajorityLabelVoter
 from metal.end_model import EndModel
 from metal.contrib.modules import Encoder, LSTMModule
 from metal.analysis import lf_summary, confusion_matrix
+
+from sampler import ImbalancedDatasetSampler
 
 logger = logging.getLogger(__name__)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -103,59 +106,6 @@ def get_data_loader(train, dev, test=None, batch_size=4, num_workers=1):
 	return data_loader
 
 
-class FrameEncoder(Encoder):
-	
-	# from Dense4012FrameNet class in mri.py
-	def __init__(self,encoded_size, **kwargs):
-		super().__init__(encoded_size)
-		#self.n_classes  = n_classes
-		#self.use_cuda   = use_cuda
-		input_shape         = kwargs.get("input_shape", (3, 128, 128))
-		layers              = kwargs.get("layers", [64, 32])
-		dropout             = kwargs.get("dropout", 0.2)
-		pretrained          = kwargs.get("pretrained", True)
-		requires_grad       = kwargs.get("requires_grad", False)
-
-		self.cnn           = densenet_40_12_bc(pretrained=pretrained, requires_grad=requires_grad)
-		self.encoded_size     = self.get_frm_output_size(input_shape) # 132
-		print('encode dim: ', self.encoded_size)
-		#self.classifier = self._make_classifier(encode_dim, n_classes, layers, dropout)
-
-	def get_frm_output_size(self, input_shape):
-		input_shape = list(input_shape)
-		input_shape.insert(0,1) # [1, 3, 128, 128]
-		print(input_shape)
-
-		dummy_batch_size = tuple(input_shape)
-		x = torch.autograd.Variable(torch.zeros(dummy_batch_size))
-		
-		print(self.cnn.forward(x).size()) # [1,132,4,4]
-		frm_output_size =  self.cnn.forward(x).size()[1]* self.cnn.forward(x).size()[2]* self.cnn.forward(x).size()[3]
-		
-		return frm_output_size # 132*4*4
-
-	def encode(self,x):
-		
-		if (len(x.shape) == 5): # if 5D
-			n_batch,n_frame,ch,row,col = x.shape
-			#print(x.shape)
-			# reshape from 5D (batch,frames,3,img_row, img_col) -> 4D (batch*frames,3,img_row, img_col)
-			x = np.reshape(x,(n_batch*n_frame,ch,row,col))
-
-			# forward pass
-			out = self.cnn.forward(x) # dim (batch*frames,encode_dim,4,4)
-			out = torch.squeeze(out) # dim (batch*frames,encode_dim)
-
-			# reshape from 4D (batch*frames,encode_dim) -> 5D (batch,frames,encode_dim)
-			encode_dim = out.shape[1]
-			out = torch.reshape(out,(n_batch,n_frame,encode_dim))
-			print(out.shape) # [4,50,132?]
-			return out
-
-		# else
-		else : 
-			return self.cnn.forward(x)
-
 
 def train_model(args):
 
@@ -164,7 +114,7 @@ def train_model(args):
 
 	hidden_size = 128 
 	num_classes = 2
-	encode_dim = 132 # using get_frm_output_size()
+	encode_dim = 2112 # using get_frm_output_size()
 
 	L,Y = load_labels(args) 
 
@@ -196,11 +146,13 @@ def train_model(args):
 	# Create datasets and dataloaders
 	train, dev, test = load_dataset(args, Ytrain_p, Y["dev"], Y["test"])
 	data_loader = get_data_loader(train, dev, test, args.batch_size)
-	
+	#print(len(data_loader["train"])) # 18850 / batch_size
+	#print(len(data_loader["dev"])) # 1500 / batch_size
+	#print(len(data_loader["test"])) # 1000 / batch_size 
 	#import ipdb; ipdb.set_trace()
 
 	# Define input encoder
-	cnn_encoder = FrameEncoder
+	cnn_encoder = FrameEncoderOC
 
 	#import ipdb; ipdb.set_trace()
 
@@ -210,8 +162,8 @@ def train_model(args):
 		hidden_size,
 		bidirectional=False,
 		verbose=False,
-		lstm_reduction="none",
-		encoder=cnn_encoder,
+		lstm_reduction="attention",
+		encoder_class=cnn_encoder,
 		)
 
 	# Define end model
@@ -225,20 +177,25 @@ def train_model(args):
 		verbose=False,
 		)
 
-	# Train end model
+		# Train end model
 	end_model.train_model(
 		train_data=data_loader["train"],
-		dev_data=data_loader["dev"],
+		valid_data=data_loader["dev"],
 		l2=args.weight_decay,
 		lr=args.lr,
 		n_epochs=args.n_epochs,
 		log_train_every=1,
 		verbose=True,
+		#loss_weights = [0.04,0.96],
+		#batchnorm = 'True',
+		#input_dropout = 0.1,
+		#middle_dropout = 0.1,
+		#validation_metric='f1',
 		)
 
 	# evaluate end model
-	end_model.score(data_loader["dev"], metric=['accuracy','precision', 'recall', 'f1'])
-	#end_model.score((Xtest,Ytest), metric=['accuracy','precision', 'recall', 'f1'])
+	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
+	#end_model.score((Xtest,Ytest), verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
 	
 
 if __name__ == "__main__":

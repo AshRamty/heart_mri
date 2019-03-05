@@ -112,13 +112,18 @@ class UKBB_LAX_Roll(Dataset):
 		# roll series based on frame_num
 		# to verify this.
 		series = np.roll(series,-frame_num,axis=0) 
-
 		#print(series.shape) # (50,108,108)
-		series = np.expand_dims(series,1) # (50,1,108,108)
+
+		# padding to 128 x 128 - to remove later by changing the cropping
+		series = np.pad(series,((0,0),(10,10),(10,10)),'minimum')
+		#print(series.shape) # (50,128,128)
+		#print(series.dtype) # float 64
+
+		series = np.expand_dims(series,1) # (50,1,128,128)
 
 		# converting from gray to RGB
 		series = np.concatenate((series,series,series),axis=1)
-		#print(series.shape) # (50,3,108,108)
+		#print(series.shape) # (50,3,128,128)
 
 		return (series, label)
 

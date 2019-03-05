@@ -171,7 +171,7 @@ def data_loader(train, dev, test=None, batch_size=4, num_workers=1):
 	return train_loader, dev_loader, test_loader
 
 
-class FrameEncoder(Encoder):
+class FrameEncoderBAV(Encoder):
 	
 	# from Dense4012FrameNet class in mri.py
 	def __init__(self,encoded_size, **kwargs):
@@ -243,7 +243,7 @@ def train_model(args):
 	encode_dim = 132 # using get_frm_output_size()
 
 	# Define input encoder
-	cnn_encoder = FrameEncoder
+	cnn_encoder = FrameEncoderBAV
 
 	# Define LSTM module
 	lstm_module = LSTMModule(
