@@ -1,6 +1,6 @@
 # Heart MRI 
 ## Data
-The data can be downloaded from dawn6 or dawn11. The path to the data is "/lfs/1/heartmri/". Copy the three folders "train32","dev32" and "test32".
+The data can be downloaded from dawn6 or dawn11. The path to the data is `/lfs/1/heartmri/`. Copy the three folders `train32`,`dev32` and `test32`.
 
 ## Software
 The scripts use the following repositories. Please download them and add them to the path: 
