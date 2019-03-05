@@ -88,10 +88,11 @@ class FrameEncoderOC(Encoder):
 
 		#self.cnn           = densenet_40_12_bc(pretrained=pretrained, requires_grad=requires_grad)
 		self.cnn 			= models.resnet34(pretrained=pretrained) # try densenet121 
-		self.encoded_size     = self.get_frm_output_size(input_shape) # 1000
-
 		if(self.use_cuda):
 			self.cnn = self.cnn.cuda()
+
+		self.encoded_size     = self.get_frm_output_size(input_shape) # 1000
+
 		#print('encode dim: ', self.encoded_size)
 
 	def get_frm_output_size(self, input_shape):
@@ -100,6 +101,8 @@ class FrameEncoderOC(Encoder):
 
 		dummy_batch_size = tuple(input_shape)
 		x = torch.autograd.Variable(torch.zeros(dummy_batch_size))		
+		if(self.use_cuda):
+			x = x.cuda()
 
 		out = self.cnn.forward(x) 
 		#print(out.shape) # [1,1000]
@@ -111,12 +114,12 @@ class FrameEncoderOC(Encoder):
 		
 		x = x.float()
 		if(self.use_cuda):
-				x = x.cuda()
+			x = x.cuda()
 
 		if (len(x.shape) == 5): # if 5D
 			# reshape from 5D (batch,frames,3,img_row, img_col) -> 4D (batch*frames,3,img_row, img_col)
 			n_batch,n_frame,ch,row,col = x.shape
-			x = np.reshape(x,(n_batch*n_frame,ch,row,col))
+			x = torch.reshape(x,(n_batch*n_frame,ch,row,col))
 
 			# forward pass
 			out = self.cnn.forward(x) # dim (batch*frames,1000)
