@@ -11,6 +11,7 @@ sys.path.append('../data')
 import numpy as np
 import argparse
 import torch
+import time
 import logging
 import warnings
 import pandas
@@ -186,6 +187,7 @@ def train_model(args):
 		n_epochs=args.n_epochs,
 		log_train_every=1,
 		verbose=True,
+		progress_bar = True,
 		#loss_weights = [0.04,0.96],
 		#batchnorm = 'True',
 		#input_dropout = 0.1,

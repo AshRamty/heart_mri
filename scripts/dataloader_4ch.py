@@ -115,15 +115,24 @@ class UKBB_LAX_Roll(Dataset):
 		#print(series.shape) # (50,108,108)
 
 		# padding to 128 x 128 - to remove later by changing the cropping
-		series = np.pad(series,((0,0),(10,10),(10,10)),'minimum')
+		#series = np.pad(series,((0,0),(10,10),(10,10)),'minimum')
 		#print(series.shape) # (50,128,128)
-		#print(series.dtype) # float 64
+		n_frames, m, n = series.shape
+		if(m<224):
+			pad_size = (( 225 - m ) // 2 ) 
+			series = np.pad(series,((0,0),(pad_size,pad_size),(0,0)),'minimum')
 
-		series = np.expand_dims(series,1) # (50,1,128,128)
+		if(n<224):
+			pad_size = (( 225 - n ) // 2 ) 
+			series = np.pad(series,((0,0),(0,0),(pad_size,pad_size)),'minimum')		
+
+		print(series.shape) # (50,224,224)
+
+		series = np.expand_dims(series,1) # (50,1,224,224)
 
 		# converting from gray to RGB
 		series = np.concatenate((series,series,series),axis=1)
-		#print(series.shape) # (50,3,128,128)
+		#print(series.shape) # (50,3,224,224)
 
 		return (series, label)
 
