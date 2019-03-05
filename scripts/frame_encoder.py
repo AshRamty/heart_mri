@@ -79,7 +79,7 @@ class FrameEncoderOC(Encoder):
 	def __init__(self,encoded_size, **kwargs):
 		super().__init__(encoded_size)
 		#self.n_classes  = n_classes
-		#self.use_cuda   = use_cuda
+		self.use_cuda   	= torch.cuda.is_available()
 		input_shape         = kwargs.get("input_shape", (3, 224, 224))
 		#layers              = kwargs.get("layers", [64, 32])
 		#dropout             = kwargs.get("dropout", 0.2)
@@ -88,7 +88,10 @@ class FrameEncoderOC(Encoder):
 
 		#self.cnn           = densenet_40_12_bc(pretrained=pretrained, requires_grad=requires_grad)
 		self.cnn 			= models.resnet34(pretrained=pretrained) # try densenet121 
-		self.encoded_size     = self.get_frm_output_size(input_shape) # 2112
+		self.encoded_size     = self.get_frm_output_size(input_shape) # 1000
+
+		if(self.use_cuda):
+			self.cnn = self.cnn.cuda()
 		#print('encode dim: ', self.encoded_size)
 
 	def get_frm_output_size(self, input_shape):
@@ -106,9 +109,11 @@ class FrameEncoderOC(Encoder):
 
 	def encode(self,x):
 		
+		x = x.float()
+		if(self.use_cuda):
+				x = x.cuda()
+
 		if (len(x.shape) == 5): # if 5D
-			x = x.float()
-			
 			# reshape from 5D (batch,frames,3,img_row, img_col) -> 4D (batch*frames,3,img_row, img_col)
 			n_batch,n_frame,ch,row,col = x.shape
 			x = np.reshape(x,(n_batch*n_frame,ch,row,col))
@@ -123,7 +128,6 @@ class FrameEncoderOC(Encoder):
 			return out
 
 		else :  # if 4D
-			x = x.float()
 			return self.cnn.forward(x) # dim [1,1000]
 
 		
