@@ -110,7 +110,7 @@ class FrameEncoder(Encoder):
 		super().__init__(encoded_size)
 		#self.n_classes  = n_classes
 		#self.use_cuda   = use_cuda
-		input_shape         = kwargs.get("input_shape", (3, 108, 108))
+		input_shape         = kwargs.get("input_shape", (3, 128, 128))
 		layers              = kwargs.get("layers", [64, 32])
 		dropout             = kwargs.get("dropout", 0.2)
 		pretrained          = kwargs.get("pretrained", True)
@@ -123,16 +123,16 @@ class FrameEncoder(Encoder):
 
 	def get_frm_output_size(self, input_shape):
 		input_shape = list(input_shape)
-		input_shape.insert(0,1) # [1, 3, 108, 108]
+		input_shape.insert(0,1) # [1, 3, 128, 128]
 		print(input_shape)
 
 		dummy_batch_size = tuple(input_shape)
 		x = torch.autograd.Variable(torch.zeros(dummy_batch_size))
 		
-		frm_output_size =  self.cnn.forward(x).size()[1]
-		print(self.cnn.forward(x).size()) # [1,132,1,1]
+		print(self.cnn.forward(x).size()) # [1,132,4,4]
+		frm_output_size =  self.cnn.forward(x).size()[1]* self.cnn.forward(x).size()[2]* self.cnn.forward(x).size()[3]
 		
-		return frm_output_size
+		return frm_output_size # 132*4*4
 
 	def encode(self,x):
 		
@@ -143,13 +143,13 @@ class FrameEncoder(Encoder):
 			x = np.reshape(x,(n_batch*n_frame,ch,row,col))
 
 			# forward pass
-			out = self.cnn.forward(x) # dim (batch*frames,encode_dim,1,1)
+			out = self.cnn.forward(x) # dim (batch*frames,encode_dim,4,4)
 			out = torch.squeeze(out) # dim (batch*frames,encode_dim)
 
 			# reshape from 4D (batch*frames,encode_dim) -> 5D (batch,frames,encode_dim)
 			encode_dim = out.shape[1]
 			out = torch.reshape(out,(n_batch,n_frame,encode_dim))
-			print(out.shape) # [4,50,108?]
+			print(out.shape) # [4,50,132?]
 			return out
 
 		# else
@@ -164,7 +164,7 @@ def train_model(args):
 
 	hidden_size = 128 
 	num_classes = 2
-	encode_dim = 108 # using get_frm_output_size()
+	encode_dim = 132 # using get_frm_output_size()
 
 	L,Y = load_labels(args) 
 

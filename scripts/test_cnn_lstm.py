@@ -267,6 +267,8 @@ def train_model(args):
 		verbose=False,
 		)
 
+	#end_model.config['train_config']['validation_metric'] = 'f1'
+
 	# Train end model
 	end_model.train_model(
 		train_data=train_loader,
@@ -276,11 +278,11 @@ def train_model(args):
 		n_epochs=args.n_epochs,
 		log_train_every=1,
 		verbose=True,
-		loss_weights = [0.96,0.04],
+		loss_weights = [0.04,0.96],
 		batchnorm = 'True',
 		input_dropout = 0.1,
 		middle_dropout = 0.1,
-		validation_metric='accuracy',
+		validation_metric='f1',
 		)
 
 	end_model.score(dev_loader, verbose=True, metric=['accuracy', 'precision', 'recall', 'f1','roc-auc'])
