@@ -266,6 +266,8 @@ def train_model(args):
 		seed=123,
 		verbose=False,
 		)
+	
+	end_model.config['train_config']['validation_metric'] = 'f1'
 
 	#end_model.config['train_config']['validation_metric'] = 'f1'
 
