@@ -126,8 +126,7 @@ class UKBB_LAX_Roll(Dataset):
 			pad_size = (( 225 - n ) // 2 ) 
 			series = np.pad(series,((0,0),(0,0),(pad_size,pad_size)),'minimum')		
 
-		print(series.shape) # (50,224,224)
-
+		#print(series.shape) # (50,224,224)
 		series = np.expand_dims(series,1) # (50,1,224,224)
 
 		# converting from gray to RGB

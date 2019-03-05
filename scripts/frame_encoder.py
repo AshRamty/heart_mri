@@ -87,9 +87,9 @@ class FrameEncoderOC(Encoder):
 		requires_grad       = kwargs.get("requires_grad", False)
 
 		#self.cnn           = densenet_40_12_bc(pretrained=pretrained, requires_grad=requires_grad)
-		self.cnn 			= models.resnet34(pretrained=pretrained, requires_grad=requires_grad) # try densenet121 
+		self.cnn 			= models.resnet34(pretrained=pretrained) # try densenet121 
 		self.encoded_size     = self.get_frm_output_size(input_shape) # 2112
-		print('encode dim: ', self.encoded_size)
+		#print('encode dim: ', self.encoded_size)
 
 	def get_frm_output_size(self, input_shape):
 		input_shape = list(input_shape)
@@ -98,47 +98,35 @@ class FrameEncoderOC(Encoder):
 		dummy_batch_size = tuple(input_shape)
 		x = torch.autograd.Variable(torch.zeros(dummy_batch_size))		
 
-		out = self.cnn.eval(x) 
-		print(out.shape) # shape?
-		frm_output_size = out.shape[1] # encode dim? 
+		out = self.cnn.forward(x) 
+		#print(out.shape) # [1,1000]
+		frm_output_size = out.shape[1] # 1000 
 		
 		return frm_output_size 
 
 	def encode(self,x):
 		
-		#print(x.shape) # [1,3,224,224]
-		# expand to 5D? to handle 4D vs 5D?
-
-		x = x.float() # is this required?
-		out = self.cnn.eval(x) # reshaping required?
-		return out 
-
-		'''
 		if (len(x.shape) == 5): # if 5D
 			x = x.float()
-			n_batch,n_frame,ch,row,col = x.shape
-			#print(x.shape)
+			
 			# reshape from 5D (batch,frames,3,img_row, img_col) -> 4D (batch*frames,3,img_row, img_col)
+			n_batch,n_frame,ch,row,col = x.shape
 			x = np.reshape(x,(n_batch*n_frame,ch,row,col))
 
 			# forward pass
-			out = self.cnn.forward(x) # dim (batch*frames,132,4,4)
-			#out = torch.squeeze(out) # dim (batch*frames,encode_dim)
-			out = torch.reshape(out,(out.shape[0],-1)) # dim (batch*frames,encode_dim)
+			out = self.cnn.forward(x) # dim (batch*frames,1000)
 
 			# reshape from 4D (batch*frames,encode_dim) -> 5D (batch,frames,encode_dim)
 			encode_dim = out.shape[1]
 			out = torch.reshape(out,(n_batch,n_frame,encode_dim))
-			#print(out.shape) # [4,50,2112]
+			#print(out.shape) # [4,50,1000]
 			return out
 
 		else :  # if 4D
 			x = x.float()
-			out = self.cnn.forward(x) # dim (num,132,4,4)
-			out = torch.reshape(out,(out.shape[0],-1)) # dim (num,encode_dim)
-			return out
-		'''
+			return self.cnn.forward(x) # dim [1,1000]
 
+		
 '''
 class FrameEncoderOC(Encoder):
 	

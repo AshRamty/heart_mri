@@ -115,7 +115,7 @@ def train_model(args):
 
 	hidden_size = 128 
 	num_classes = 2
-	encode_dim = 2112 # using get_frm_output_size()
+	encode_dim = 1000 # using get_frm_output_size()
 
 	L,Y = load_labels(args) 
 
@@ -178,7 +178,10 @@ def train_model(args):
 		verbose=False,
 		)
 
-		# Train end model
+	print('Training model')
+	tic = time.time()
+	
+	# Train end model
 	end_model.train_model(
 		train_data=data_loader["train"],
 		valid_data=data_loader["dev"],
@@ -195,10 +198,14 @@ def train_model(args):
 		#validation_metric='f1',
 		)
 
+	print('Time taken for training:')
+	print(time.time() - tic)
+
 	# evaluate end model
 	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
 	#end_model.score((Xtest,Ytest), verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
 	
+
 
 if __name__ == "__main__":
 	# Checking to see if cuda is available for GPU use
