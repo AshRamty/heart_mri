@@ -284,7 +284,6 @@ def train_model(args):
 		middle_dropout = 0.1,
 		validation_metric='f1',
 		)
-	# how to add kwargs dropout? 
 
 	end_model.score(dev_loader, verbose=True, metric=['accuracy', 'precision', 'recall', 'f1','roc-auc'])
 	# Test end model 
