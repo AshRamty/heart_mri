@@ -267,8 +267,6 @@ def train_model(args):
 		verbose=False,
 		)
 	
-	end_model.config['train_config']['validation_metric'] = 'f1'
-
 	#end_model.config['train_config']['validation_metric'] = 'f1'
 
 	# Train end model
