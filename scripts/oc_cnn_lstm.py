@@ -148,7 +148,7 @@ def train_model(args):
 	# End Model
 	# Create datasets and dataloaders
 	train, dev, test = load_dataset(args, Ytrain_p, Y["dev"], Y["test"])
-	data_loader = get_data_loader(train, dev, test, args.batch_size)
+	data_loader = get_data_loader(train, dev, test, args.batch_size, args.num_workers)
 	#print(len(data_loader["train"])) # 18850 / batch_size
 	#print(len(data_loader["dev"])) # 1500 / batch_size
 	#print(len(data_loader["test"])) # 1000 / batch_size 
@@ -226,6 +226,7 @@ if __name__ == "__main__":
 	argparser.add_argument("--test", type=str, default=None, help="test set")
 
 	#argparser.add_argument("-c", "--config", type=str, default=None, help="load model config JSON")
+	argparser.add_argument("--num_workers",type=int,default=1,help = "number of workers")
 	argparser.add_argument("-B", "--batch_size", type=int, default=4, help="batch size")
 	argparser.add_argument("--quiet", action="store_true", help="suppress logging")
 	argparser.add_argument("-H", "--host_device", type=str, default="gpu", help="Host device (GPU|CPU)")

@@ -304,6 +304,7 @@ def train_model(args):
 	'dropout': [0.1,0.25,0.4],
 	'lr':{'range': [1e-3, 1e-2], 'scale': 'log'}, 
 	'l2':{'range': [1e-5, 1e-4], 'scale': 'log'},#[ 1.21*1e-5],
+	'checkpoint_metric':['f1'],
 	'log_train_every':1,
 	'loss_weights':[[0.02, 0.98 ]],
 	}	

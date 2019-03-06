@@ -230,6 +230,7 @@ def train_model(args):
 		verbose=True,
 		loss_weights = [0.04,0.96],
 		batchnorm = 'True',
+		checkpoint_metric = 'f1',
 		input_dropout = 0.1,
 		middle_dropout = 0.1,
 		validation_metric='f1',
