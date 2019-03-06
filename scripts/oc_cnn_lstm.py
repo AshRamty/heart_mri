@@ -85,10 +85,12 @@ def load_dataset(args,Ytrain,Ydev,Ytest):
 	'''
 	DataSet = UKBB_LAX_Roll
 	train = DataSet(args.train, Ytrain, seed=args.data_seed)
-	dev = DataSet(args.dev, np.expand_dims(Ydev,1), seed=args.data_seed)
-	
+	#dev = DataSet(args.dev, np.expand_dims(Ydev,1), seed=args.data_seed)
+	dev = DataSet(args.dev, Ydev, seed=args.data_seed)
+
 	if args.test:
-		test = DataSet(args.test, np.expand_dims(Ytest,1), seed=args.data_seed)
+		#test = DataSet(args.test, np.expand_dims(Ytest,1), seed=args.data_seed)
+		test = DataSet(args.test, Ytest, seed=args.data_seed)
 	else:
 		test = None
 
@@ -156,7 +158,7 @@ def train_model(args):
 	cnn_encoder = FrameEncoderOC
 
 	if(torch.cuda.is_available()):
-		device = 'gpu'
+		device = 'cuda'
 	else:
 		device = 'cpu'
 	#import ipdb; ipdb.set_trace()
@@ -176,7 +178,7 @@ def train_model(args):
 		input_module=lstm_module,
 		layer_out_dims=[hidden_size, num_classes],
 		optimizer="adam",
-		use_cuda=cuda,
+		#use_cuda=cuda,
 		batchnorm=True,
 		seed=123,
 		verbose=False,

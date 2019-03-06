@@ -79,6 +79,10 @@ class UKBB_LAX_Roll(Dataset):
 		self.labels = labels
 		self.list = glob(root_dir+'/la_4ch/*.npy') 
 		np.random.seed(seed)
+		if(len(labels.shape)==2):
+			self.mode = 'prob'
+		#else:
+		#	self.mode = 'value'
 
 		#import ipdb; ipdb.set_trace()
 
@@ -98,7 +102,10 @@ class UKBB_LAX_Roll(Dataset):
 
 	def __getitem__(self, idx):
 		
-		label = self.labels[idx,:]
+		if(self.mode == 'prob'):
+			label = self.labels[idx,:]
+		else:
+			label = self.labels[idx]
 		#print(label.shape)
 
 		# finding patient id number
