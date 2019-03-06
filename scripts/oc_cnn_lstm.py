@@ -185,8 +185,8 @@ def train_model(args):
 		device = device,
 		)
 
-	print('Training model')
-	tic = time.time()
+	#print('Training model')
+	#tic = time.time()
 	
 	# Train end model
 	end_model.train_model(
@@ -205,8 +205,8 @@ def train_model(args):
 		#validation_metric='f1',
 		)
 
-	print('Time taken for training:')
-	print(time.time() - tic)
+	#print('Time taken for training:')
+	#print(time.time() - tic)
 
 	# evaluate end model
 	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
