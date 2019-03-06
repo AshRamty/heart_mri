@@ -156,7 +156,7 @@ def train_model(args):
 	cnn_encoder = FrameEncoderOC
 
 	if(torch.cuda.is_available()):
-		device = 'gpu'
+		device = 'cuda'
 	else:
 		device = 'cpu'
 	#import ipdb; ipdb.set_trace()
