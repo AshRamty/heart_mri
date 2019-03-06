@@ -79,8 +79,6 @@ class UKBB_LAX_Roll(Dataset):
 		self.labels = labels
 		self.list = glob(root_dir+'/la_4ch/*.npy') 
 		np.random.seed(seed)
-		if(len(labels.shape)==2):
-			self.mode = 'prob'
 		#else:
 		#	self.mode = 'value'
 
@@ -101,8 +99,8 @@ class UKBB_LAX_Roll(Dataset):
 		return len(self.labels)
 
 	def __getitem__(self, idx):
-		
-		if(self.mode == 'prob'):
+		all_labels = self.labels
+		if(len(all_labels.shape) == 2):
 			label = self.labels[idx,:]
 		else:
 			label = self.labels[idx]
