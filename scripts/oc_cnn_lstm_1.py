@@ -34,7 +34,9 @@ from metal.label_model.baselines import MajorityLabelVoter
 from metal.end_model import EndModel
 from metal.contrib.modules import Encoder, LSTMModule
 from metal.analysis import lf_summary, confusion_matrix
-
+from metal.tuners.random_tuner import RandomSearchTuner
+from metal.logging import LogWriter
+from metal.logging.tensorboard import TensorBoardWriter
 from sampler import ImbalancedDatasetSampler
 
 logger = logging.getLogger(__name__)
@@ -173,9 +175,12 @@ def train_model(args):
 		encoder_class=cnn_encoder,
 		)
 
-	train_args = [train_loader]
+	train_args = [data_loader["train"]]
 
-	train_kwargs = {}
+	train_kwargs = {
+	'seed':123,
+	'progress_bar':True,
+	'log_train_every':1}
 
 	init_args = [
 	[hidden_size, num_classes]
@@ -187,17 +192,16 @@ def train_model(args):
 	"verbose": False,
 	"input_batchnorm": True,
 	"use_cuda":torch.cuda.is_available(),
-	'seed':123}
+	'seed':123,
+	'device':device}
 	
 	search_space = {
-	'seed': [123],
 	'n_epochs':[10],
 	'batchnorm':[True],
 	'dropout': [0.1,0.25,0.4],
 	'lr':{'range': [1e-3, 1e-2], 'scale': 'log'}, 
 	'l2':{'range': [1e-5, 1e-4], 'scale': 'log'},#[ 1.21*1e-5],
 	#'checkpoint_metric':['f1'],
-	'log_train_every':1,
 	}	
 	
 	log_config = {
@@ -219,7 +223,7 @@ def train_model(args):
 	
 	disc_model = tuner.search(
 	search_space,
-	valid_data = dev_loader,
+	valid_data = data_loader["dev"],
 	train_args=train_args,
 	init_args=init_args,
 	init_kwargs=init_kwargs,
@@ -246,7 +250,7 @@ if __name__ == "__main__":
 	argparser.add_argument("--test", type=str, default=None, help="test set")
 
 	#argparser.add_argument("-c", "--config", type=str, default=None, help="load model config JSON")
-	argparser.add_argument("--num_workers",type=int,default=1,help = "number of workers")
+	argparser.add_argument("--num_workers",type=int,default=8,help = "number of workers")
 	argparser.add_argument("-B", "--batch_size", type=int, default=4, help="batch size")
 	argparser.add_argument("--quiet", action="store_true", help="suppress logging")
 	argparser.add_argument("-H", "--host_device", type=str, default="gpu", help="Host device (GPU|CPU)")
