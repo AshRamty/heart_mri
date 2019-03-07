@@ -173,43 +173,63 @@ def train_model(args):
 		encoder_class=cnn_encoder,
 		)
 
-	# Define end model
-	end_model = EndModel(
-		input_module=lstm_module,
-		layer_out_dims=[hidden_size, num_classes],
-		optimizer="adam",
-		#use_cuda=cuda,
-		batchnorm=True,
-		seed=123,
-		verbose=False,
-		device = device,
-		)
+	train_args = [train_loader]
 
-	#print('Training model')
-	#tic = time.time()
+	train_kwargs = {}
+
+	init_args = [
+	[hidden_size, num_classes]
+	]
+
+	init_kwargs = {
+	"input_module": lstm_module, 
+	"optimizer": "adam",
+	"verbose": False,
+	"input_batchnorm": True,
+	"use_cuda":torch.cuda.is_available(),
+	'seed':123}
 	
-	# Train end model
-	end_model.train_model(
-		train_data=data_loader["train"],
-		valid_data=data_loader["dev"],
-		l2=args.weight_decay,
-		lr=args.lr,
-		n_epochs=args.n_epochs,
-		log_train_every=1,
-		verbose=True,
-		progress_bar = True,
-		#loss_weights = [0.04,0.96],
-		#batchnorm = 'True',
-		#input_dropout = 0.1,
-		#middle_dropout = 0.1,
-		#validation_metric='f1',
-		)
+	search_space = {
+	'seed': [123],
+	'n_epochs':[10],
+	'batchnorm':[True],
+	'dropout': [0.1,0.25,0.4],
+	'lr':{'range': [1e-3, 1e-2], 'scale': 'log'}, 
+	'l2':{'range': [1e-5, 1e-4], 'scale': 'log'},#[ 1.21*1e-5],
+	#'checkpoint_metric':['f1'],
+	'log_train_every':1,
+	}	
+	
+	log_config = {
+	"log_dir": "./run_logs", 
+	"run_name": 'cnn_lstm_bav'
+	}
 
-	#print('Time taken for training:')
-	#print(time.time() - tic)
+	max_search = 5
+	tuner_config = {"max_search": max_search }
+
+	validation_metric = 'accuracy'
+
+	# Set up logger and searcher
+	tuner = RandomSearchTuner(EndModel, 
+	**log_config,
+	log_writer_class=TensorBoardWriter,
+	validation_metric=validation_metric,
+	seed=1701)
+	
+	disc_model = tuner.search(
+	search_space,
+	valid_data = dev_loader,
+	train_args=train_args,
+	init_args=init_args,
+	init_kwargs=init_kwargs,
+	train_kwargs=train_kwargs,
+	max_search=tuner_config["max_search"],
+	clean_up=False,
+	)
 
 	# evaluate end model
-	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
+	disc_model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
 	#end_model.score((Xtest,Ytest), verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
 	
 
