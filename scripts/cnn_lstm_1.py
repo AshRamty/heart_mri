@@ -256,11 +256,20 @@ def train_model(args):
 		)
 
 	#import ipdb; ipdb.set_trace()
-
+	
+	if(torch.cuda.is_available()):
+		device = 'cuda'
+	else:
+		device = 'cpu'
 
 	train_args = [train_loader]
 
-	train_kwargs = {}
+	train_kwargs = {
+	'seed':123,
+	'log_train_every':1,
+	'checkpoint_metric':'f1',
+	'log_valid_metrics':['accuracy','f1']
+	}
 
 	init_args = [
 	[hidden_size, num_classes]
@@ -271,7 +280,8 @@ def train_model(args):
 	"optimizer": "adam",
 	"verbose": False,
 	"input_batchnorm": True,
-	"use_cuda":torch.cuda.is_available(),
+	#"use_cuda":torch.cuda.is_available(),
+	'device':device,
 	'seed':123}
 	
 	'''
@@ -298,15 +308,12 @@ def train_model(args):
 	}
 	'''
 	search_space = {
-	'seed': [123],
-	'n_epochs':[3],
+	'n_epochs':[30],
 	'batchnorm':[True],
 	'dropout': [0.1,0.25,0.4],
 	'lr':{'range': [1e-3, 1e-2], 'scale': 'log'}, 
 	'l2':{'range': [1e-5, 1e-4], 'scale': 'log'},#[ 1.21*1e-5],
-	'checkpoint_metric':['f1'],
-	'log_train_every':1,
-	'loss_weights':[[0.02, 0.98 ]],
+	'loss_weights':[[0.04,0.96]],
 	}	
 	
 	log_config = {
