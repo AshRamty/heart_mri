@@ -206,7 +206,7 @@ class FrameEncoderBAV(Encoder):
 			n_batch,n_frame,ch,row,col = x.shape
 
 			# reshape from 5D (batch,frames,3,img_row, img_col) -> 4D (batch*frames,3,img_row, img_col)
-			x = np.reshape(x,(n_batch*n_frame,ch,row,col))
+			x = torch.reshape(x,(n_batch*n_frame,ch,row,col))
 
 			# forward pass
 			out = self.cnn.forward(x) # dim (batch*frames,encode_dim,1,1)
@@ -308,11 +308,11 @@ def train_model(args):
 	}
 	'''
 	search_space = {
-	'n_epochs':[30],
+	'n_epochs':[100],
 	'batchnorm':[True],
 	'dropout': [0.1,0.25,0.4],
-	'lr':{'range': [1e-3, 1e-2], 'scale': 'log'}, 
-	'l2':{'range': [1e-5, 1e-4], 'scale': 'log'},#[ 1.21*1e-5],
+	'lr':{'range': [1e-3, 1e-1], 'scale': 'log'}, 
+	'l2':{'range': [1e-5, 1e-3], 'scale': 'log'},#[ 1.21*1e-5],
 	'loss_weights':[[0.04,0.96]],
 	}	
 	

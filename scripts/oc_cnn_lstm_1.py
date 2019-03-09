@@ -206,7 +206,7 @@ def train_model(args):
 	
 	log_config = {
 	"log_dir": "./run_logs", 
-	"run_name": 'cnn_lstm_bav'
+	"run_name": 'cnn_lstm_ov'
 	}
 
 	max_search = 5

@@ -188,6 +188,7 @@ def train_model(args):
 	#print('Training model')
 	#tic = time.time()
 	
+	dropout = 0.4
 	# Train end model
 	end_model.train_model(
 		train_data=data_loader["train"],
@@ -198,10 +199,10 @@ def train_model(args):
 		log_train_every=1,
 		verbose=True,
 		progress_bar = True,
-		#loss_weights = [0.04,0.96],
-		#batchnorm = 'True',
-		#input_dropout = 0.1,
-		#middle_dropout = 0.1,
+		loss_weights = [0.45,0.55],
+		batchnorm = 'True',
+		input_dropout = dropout,
+		middle_dropout = dropout,
 		#validation_metric='f1',
 		)
 
@@ -226,7 +227,7 @@ if __name__ == "__main__":
 	argparser.add_argument("--test", type=str, default=None, help="test set")
 
 	#argparser.add_argument("-c", "--config", type=str, default=None, help="load model config JSON")
-	argparser.add_argument("--num_workers",type=int,default=1,help = "number of workers")
+	argparser.add_argument("--num_workers",type=int,default=8,help = "number of workers")
 	argparser.add_argument("-B", "--batch_size", type=int, default=4, help="batch size")
 	argparser.add_argument("--quiet", action="store_true", help="suppress logging")
 	argparser.add_argument("-H", "--host_device", type=str, default="gpu", help="Host device (GPU|CPU)")

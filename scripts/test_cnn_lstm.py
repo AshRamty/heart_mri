@@ -272,8 +272,8 @@ if __name__ == "__main__":
 	argparser.add_argument("-a", "--dconfig", type=str, default=None, help="load data config JSON")
 
 	argparser.add_argument("-R", "--rebalance", action="store_true", help="rebalance training data")
-	argparser.add_argument("--data_threshold", type=float, default=0.5, help="threshold cutoff to use when sampling patients")
-	argparser.add_argument("--data_seed", type=int, default=4321, help="random sample seed")
+	argparser.add_argument("--data_threshold", type=float, default=0.75, help="threshold cutoff to use when sampling patients")
+	argparser.add_argument("--data_seed", type=int, default=2018, help="random sample seed")
 
 	argparser.add_argument("--sample", action="store_true", help="sample training data")
 	argparser.add_argument("--sample_type", type=int, default=0, choices=[0, 1, 2, 3],
