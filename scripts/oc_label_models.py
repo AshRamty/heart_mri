@@ -2,7 +2,6 @@
 Compares label model performance with vs without temporal modelling
 '''
 import sys
-import os
 sys.path.append('../metal')
 sys.path.append('../heart-MRI-pytorch')
 sys.path.append('../data')
@@ -22,19 +21,10 @@ from torch.nn.functional import normalize
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable
-from torch.utils.data import Dataset, DataLoader
-
-from dataloader_4ch import UKBB_LAX_Roll
-from models.frame.densenet_av import densenet_40_12_bc
 from utils import *
-
 from metal.label_model import LabelModel
 from metal.label_model.baselines import MajorityLabelVoter
-from metal.end_model import EndModel
-from metal.contrib.modules import Encoder, LSTMModule
 from metal.analysis import lf_summary, confusion_matrix
-from metal.tuners.random_tuner import RandomSearchTuner
-
 from DP.label_model import DPLabelModel, optimize
 
 
@@ -64,7 +54,6 @@ def read_labels(label_list):
 
 
 def load_labels(args):
-	#path = os.getcwd()
 	L = {}
 	Y = {}
 
