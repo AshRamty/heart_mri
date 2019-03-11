@@ -190,10 +190,10 @@ def train_model(args):
 		temporal_models[seed] = markov_model
 
 	for seed, model in enumerate(temporal_models):
-    R_pred = model.predict(MRI_data_temporal['Li_dev'])
-    F1 = metric_score(MRI_data_temporal['R_dev'].cpu()>0, R_pred.cpu()>0, 'f1')
-    accuracy = metric_score(MRI_data_temporal['R_dev'].cpu(), R_pred.cpu(), 'accuracy')
-    print(f"seed={seed}  accuracy={accuracy:.3f}  F1={F1:.3f}")
+		R_pred = model.predict(MRI_data_temporal['Li_dev'])
+		F1 = metric_score(MRI_data_temporal['R_dev'].cpu()>0, R_pred.cpu()>0, 'f1')
+		accuracy = metric_score(MRI_data_temporal['R_dev'].cpu(), R_pred.cpu(), 'accuracy')
+		print(f"seed={seed}  accuracy={accuracy:.3f}  F1={F1:.3f}")
 
 	
 
