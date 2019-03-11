@@ -176,18 +176,18 @@ def train_model(args):
 	max_seed = 10
 	temporal_models = [None,]*max_seed
 	for seed in range(max_seed):
-	markov_model = DPLabelModel(m=m_per_task*T, 
-								T=T,
-								edges=[(i,i+m_per_task) for i in range((T-1)*m_per_task)],
-								coverage_sets=[[t,] for t in range(T) for _ in range(m_per_task)],
-								mu_sharing=[[t*m_per_task+i for t in range(T)] for i in range(m_per_task)],
-								phi_sharing=[[(t*m_per_task+i, (t+1)*m_per_task+i) for t in range(T-1)] for i in range(m_per_task)],
-								device=device,
-								class_balance=MRI_data_temporal['class_balance'],
-								seed=seed)
-	optimize(markov_model, L_hat=MRI_data_temporal['Li_train'], num_iter=1000, lr=1e-5, momentum=0.8, clamp=True, 
-				verbose=False, seed=seed)
-	temporal_models[seed] = markov_model
+		markov_model = DPLabelModel(m=m_per_task*T, 
+									T=T,
+									edges=[(i,i+m_per_task) for i in range((T-1)*m_per_task)],
+									coverage_sets=[[t,] for t in range(T) for _ in range(m_per_task)],
+									mu_sharing=[[t*m_per_task+i for t in range(T)] for i in range(m_per_task)],
+									phi_sharing=[[(t*m_per_task+i, (t+1)*m_per_task+i) for t in range(T-1)] for i in range(m_per_task)],
+									device=device,
+									class_balance=MRI_data_temporal['class_balance'],
+									seed=seed)
+		optimize(markov_model, L_hat=MRI_data_temporal['Li_train'], num_iter=1000, lr=1e-5, momentum=0.8, clamp=True, 
+					verbose=False, seed=seed)
+		temporal_models[seed] = markov_model
 
 	for seed, model in enumerate(temporal_models):
     R_pred = model.predict(MRI_data_temporal['Li_dev'])
