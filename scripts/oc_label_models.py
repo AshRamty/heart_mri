@@ -80,10 +80,12 @@ def train_model(args):
 	encode_dim = 108 # using get_frm_output_size()
 
 	if(torch.cuda.is_available()):
-		device = 'cuda'
+		device = torch.device('cuda:0')
+		#device = 'cuda'
 	else:
 		device = 'cpu'
-
+	
+	#print(device)
 	L,Y = load_labels(args) 
 
 	# Label Model
@@ -113,7 +115,7 @@ def train_model(args):
                 'Li_dev': torch.LongTensor(np.array(L["dev"].todense())),
                 'R_dev':Y["dev"]}
 
-	MRI_data_naive['class_balance'] = torch.FloatTensor([0.5,0.5]).to(device)
+	MRI_data_naive['class_balance'] = torch.LongTensor([0.5,0.5]).to(device)
 
 	# training naive model 
 	naive_model = DPLabelModel(	m=m_per_task, 
@@ -126,10 +128,10 @@ def train_model(args):
 								class_balance=MRI_data_naive['class_balance'], 
 								seed=0)
 
-	optimize(naive_model, L_hat=MRI_data_naive['Li_train'], num_iter=3000, lr=1e-3, momentum=0.8, clamp=True, seed=0)
+	optimize(naive_model, L_hat=MRI_data_naive['Li_train'], num_iter=300, lr=1e-3, momentum=0.8, clamp=True, seed=0)
 
 	# evaluating naive model 
-	R_pred = naive_model.predict( MRI_data_naive['Li_dev'].cpu() ).data.numpy()
+	R_pred = naive_model.predict( MRI_data_naive['Li_dev'] ).data.numpy()
 	R_pred = 2 - R_pred
 	#print(R_pred)
 	#print(MRI_data_naive['R_dev'])
