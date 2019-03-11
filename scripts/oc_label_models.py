@@ -129,7 +129,7 @@ def train_model(args):
 	optimize(naive_model, L_hat=MRI_data_naive['Li_train'], num_iter=3000, lr=1e-3, momentum=0.8, clamp=True, seed=0)
 
 	# evaluating naive model 
-	R_pred = naive_model.predict( MRI_data_naive['Li_dev'] ).data.numpy()
+	R_pred = naive_model.predict( MRI_data_naive['Li_dev'].cpu() ).data.numpy()
 	R_pred = 2 - R_pred
 	#print(R_pred)
 	#print(MRI_data_naive['R_dev'])
@@ -190,7 +190,7 @@ def train_model(args):
 		temporal_models[seed] = markov_model
 
 	for seed, model in enumerate(temporal_models):
-		R_pred = model.predict(MRI_data_temporal['Li_dev'])
+		R_pred = model.predict(MRI_data_temporal['Li_dev'].cpu())
 		F1 = metric_score(MRI_data_temporal['R_dev'].cpu()>0, R_pred.cpu()>0, 'f1')
 		accuracy = metric_score(MRI_data_temporal['R_dev'].cpu(), R_pred.cpu(), 'accuracy')
 		print(f"seed={seed}  accuracy={accuracy:.3f}  F1={F1:.3f}")
