@@ -111,11 +111,11 @@ def train_model(args):
 	#print(L["dev"].todense().shape) # (1500,5)
 	#print(Y["dev"].shape) # (1500,)
 	m_per_task = L["train"].todense().shape[1] # 5
-	MRI_data_naive = {'Li_train': torch.LongTensor(np.array(L["train"].todense().astype(int))),
-                'Li_dev': torch.LongTensor(np.array(L["dev"].todense())),
+	MRI_data_naive = {'Li_train': torch.FloatTensor(np.array(L["train"].todense().astype('int_'))),
+                'Li_dev': torch.FloatTensor(np.array(L["dev"].todense())),
                 'R_dev':Y["dev"]}
 
-	MRI_data_naive['class_balance'] = torch.LongTensor([0.5,0.5]).to(device)
+	MRI_data_naive['class_balance'] = torch.FloatTensor([0.5,0.5]).to(device)
 
 	# training naive model 
 	naive_model = DPLabelModel(	m=m_per_task, 
@@ -125,7 +125,7 @@ def train_model(args):
 								mu_sharing=[[i,] for i in range(m_per_task)],
 								phi_sharing=[],
 								device=device,
-								class_balance=MRI_data_naive['class_balance'], 
+								#class_balance=MRI_data_naive['class_balance'], 
 								seed=0)
 
 	optimize(naive_model, L_hat=MRI_data_naive['Li_train'], num_iter=300, lr=1e-3, momentum=0.8, clamp=True, seed=0)
