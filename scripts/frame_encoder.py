@@ -85,8 +85,8 @@ class FrameEncoderOC(Encoder):
 		requires_grad	= kwargs.get("requires_grad", False)
 
 		#self.cnn           = densenet_40_12_bc(pretrained=pretrained, requires_grad=requires_grad)
-		#self.cnn = models.resnet34(pretrained=pretrained)
-		self.cnn = models.densenet121(pretrained = pretrained)
+		self.cnn = models.resnet34(pretrained=pretrained)
+		#self.cnn = models.densenet121(pretrained = pretrained)
 		for param in self.cnn.parameters():
 			param.requires_grad = requires_grad
 		
