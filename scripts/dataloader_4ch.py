@@ -105,6 +105,9 @@ class UKBB_LAX_Roll(Dataset):
 		else:
 			label = self.labels[idx]
 		#print(label.shape)
+		
+		# switching order to have minimal class = 1
+		labels = 3 - labels		
 
 		# finding patient id number
 		p_idx = idx // 50

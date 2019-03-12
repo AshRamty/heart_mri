@@ -201,7 +201,7 @@ def train_model(args):
 		progress_bar = True,
 		loss_weights = [0.55,0.45],
 		batchnorm = 'False',
-		input_dropout = dropout,
+		#input_dropout = dropout,
 		middle_dropout = dropout,
 		#validation_metric='f1',
 		)
