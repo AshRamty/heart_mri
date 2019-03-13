@@ -115,7 +115,7 @@ def train_model(args):
     #global args
     #args = parser.parse_args()
 
-	hidden_size = 128 
+	hidden_size =200 
 	num_classes = 2
 	encode_dim = 1000 # using get_frm_output_size()
 
@@ -179,14 +179,11 @@ def train_model(args):
 		layer_out_dims=[hidden_size, num_classes],
 		optimizer="adam",
 		#use_cuda=cuda,
-		batchnorm=True,
-		seed=123,
+		batchnorm=False,
+		seed=args.seed,
 		verbose=False,
 		device = device,
 		)
-
-	#print('Training model')
-	#tic = time.time()
 	
 	dropout = 0.4
 	# Train end model
@@ -200,14 +197,11 @@ def train_model(args):
 		verbose=True,
 		progress_bar = True,
 		loss_weights = [0.55,0.45],
-		batchnorm = 'False',
-		#input_dropout = dropout,
+		batchnorm = False,
+		input_dropout = 0.1,
 		middle_dropout = dropout,
 		#validation_metric='f1',
 		)
-
-	#print('Time taken for training:')
-	#print(time.time() - tic)
 
 	# evaluate end model
 	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
@@ -237,7 +231,7 @@ if __name__ == "__main__":
 	argparser.add_argument("--momentum", default=0.9, type=float, help="momentum")
 	argparser.add_argument("--weight-decay","--wd",default=1e-4,type=float,help="weight decay (default: 1e-4)")
 	argparser.add_argument("-E", "--n_epochs", type=int, default=1, help="number of training epochs")
-
+	argparser.add_argument("--seed",type=int,default=123,help="random seed for initialisation")
 	args = argparser.parse_args()
 
 	if not args.quiet:
