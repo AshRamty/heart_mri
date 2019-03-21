@@ -170,7 +170,7 @@ def train_model(args):
 		hidden_size,
 		bidirectional=False,
 		verbose=False,
-		lstm_reduction="attention",
+		lstm_reduction=args.lstm_reduction,
 		encoder_class=cnn_encoder,
 		)
 
@@ -233,6 +233,7 @@ if __name__ == "__main__":
 	argparser.add_argument("--weight-decay","--wd",default=1e-4,type=float,help="weight decay (default: 1e-4)")
 	argparser.add_argument("-E", "--n_epochs", type=int, default=1, help="number of training epochs")
 	argparser.add_argument("--seed",type=int,default=123,help="random seed for initialisation")
+	argparser.add_argument("--lstm_reduction",type=str,default="attention",help="LSTM reduction at output layer")
 	args = argparser.parse_args()
 
 	if not args.quiet:
