@@ -1,5 +1,6 @@
 """
 Tests MeTaL CNN-LSTM module using BAV data
+Does not include hyperparameter tuning
 
 """
 

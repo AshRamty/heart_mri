@@ -1,5 +1,6 @@
 '''
 Classifies mitral valve open / close using CNN LSTM in Metal
+with hyperparameter tuning
 
 '''
 import sys

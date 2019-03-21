@@ -1,5 +1,6 @@
 """
 MeTaL CNN-LSTM module using BAV data
+with hyperparameter tuning
 
 """
 
