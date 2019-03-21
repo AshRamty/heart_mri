@@ -179,7 +179,7 @@ def train_model(args):
 	train_args = [data_loader["train"]]
 
 	train_kwargs = {
-	'seed':123,
+	'seed':args.seed,
 	'progress_bar':True,
 	'log_train_every':1}
 
@@ -193,7 +193,8 @@ def train_model(args):
 	"verbose": False,
 	"input_batchnorm": True,
 	"use_cuda":torch.cuda.is_available(),
-	'seed':123,
+	'checkpoint_dir':args.checkpoint_dir,
+	'seed':args.seed,
 	'device':device}
 	
 	search_space = {
@@ -207,7 +208,7 @@ def train_model(args):
 	
 	log_config = {
 	"log_dir": "./run_logs", 
-	"run_name": 'cnn_lstm_ov'
+	"run_name": 'cnn_lstm_oc'
 	}
 
 	max_search = 5
@@ -262,8 +263,10 @@ if __name__ == "__main__":
 	argparser.add_argument("--weight-decay","--wd",default=1e-4,type=float,help="weight decay (default: 1e-4)")
 	argparser.add_argument("-E", "--n_epochs", type=int, default=1, help="number of training epochs")
 
+	argparser.add_argument("--seed",type=int,default=123,help="random seed for initialisation")
 	argparser.add_argument("--mask",type=str,default=False,help="Selects whether to use segmented data")
-	
+	argparser.add_argument("--checkpoint_dir", type=str, default="oc_checkpoints", help="dir to save checkpoints")
+
 	args = argparser.parse_args()
 
 	if not args.quiet:

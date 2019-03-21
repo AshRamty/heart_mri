@@ -115,7 +115,7 @@ def train_model(args):
 		optimizer="adam",
 		use_cuda=cuda,
 		batchnorm=True,
-		seed=123,
+		seed=args.seed,
 		verbose=False,
 		)
 	
@@ -135,6 +135,7 @@ def train_model(args):
 		batchnorm = 'False',
 		log_valid_metrics = ['accuracy','f1'],
 		checkpoint_metric = 'f1',
+		checkpoint_dir = args.checkpoint_dir,
 		#validation_metric='accuracy',
 		#input_dropout = 0.1,
 		middle_dropout = dropout,
@@ -172,6 +173,10 @@ if __name__ == "__main__":
 	argparser.add_argument("--momentum", default=0.9, type=float, help="momentum")
 	argparser.add_argument("--weight-decay","--wd",default=1e-4,type=float,help="weight decay (default: 1e-4)")
 	argparser.add_argument("-E", "--n_epochs", type=int, default=1, help="number of training epochs")
+
+	argparser.add_argument("--seed",type=int,default=123,help="random seed for initialisation")
+	argparser.add_argument("--mask",type=str,default=False,help="Selects whether to use segmented data")
+	argparser.add_argument("--checkpoint_dir", type=str, default="mr_checkpoints", help="dir to save checkpoints")
 
 	args = argparser.parse_args()
 

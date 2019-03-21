@@ -201,6 +201,7 @@ def train_model(args):
 		batchnorm = False,
 		input_dropout = 0.1,
 		middle_dropout = dropout,
+		checkpoint_dir = args.checkpoint_dir,
 		#validation_metric='f1',
 		)
 
@@ -236,6 +237,7 @@ if __name__ == "__main__":
 	argparser.add_argument("--lstm_reduction",type=str,default="attention",help="LSTM reduction at output layer")
 
 	argparser.add_argument("--mask",type=str,default=False,help="Selects whether to use segmented data")
+	argparser.add_argument("--checkpoint_dir", type=str, default="oc_checkpoints", help="dir to save checkpoints")
 
 	args = argparser.parse_args()
 
