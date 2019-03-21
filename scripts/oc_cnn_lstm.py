@@ -85,13 +85,13 @@ def load_dataset(args,Ytrain,Ydev,Ytest):
 	Loading LAX 4ch data
 	'''
 	DataSet = UKBB_LAX_Roll
-	train = DataSet(args.train, Ytrain, seed=args.data_seed)
+	train = DataSet(args.train, Ytrain, seed=args.data_seed, mask = args.mask)
 	#dev = DataSet(args.dev, np.expand_dims(Ydev,1), seed=args.data_seed)
-	dev = DataSet(args.dev, Ydev, seed=args.data_seed)
+	dev = DataSet(args.dev, Ydev, seed=args.data_seed, mask = args.mask)
 
 	if args.test:
 		#test = DataSet(args.test, np.expand_dims(Ytest,1), seed=args.data_seed)
-		test = DataSet(args.test, Ytest, seed=args.data_seed)
+		test = DataSet(args.test, Ytest, seed=args.data_seed, mask = args.mask)
 	else:
 		test = None
 
@@ -234,6 +234,9 @@ if __name__ == "__main__":
 	argparser.add_argument("-E", "--n_epochs", type=int, default=1, help="number of training epochs")
 	argparser.add_argument("--seed",type=int,default=123,help="random seed for initialisation")
 	argparser.add_argument("--lstm_reduction",type=str,default="attention",help="LSTM reduction at output layer")
+
+	argparser.add_argument("--mask",type=str,default=False,help="Selects whether to use segmented data")
+
 	args = argparser.parse_args()
 
 	if not args.quiet:

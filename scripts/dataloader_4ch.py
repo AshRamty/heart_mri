@@ -74,10 +74,14 @@ class UKBB_LAX_Roll(Dataset):
 
 
 	"""
-	def __init__(self,root_dir,labels, seed=123):
+	def __init__(self,root_dir,labels, seed=123, mask = False):
 		self.root_dir = root_dir
 		self.labels = labels
-		self.list = glob(root_dir+'/la_4ch/*.npy') 
+		if(mask):
+			self.list = glob(root_dir+'/la_4ch_masked/*.npy') 
+		else:
+			self.list = glob(root_dir+'/la_4ch/*.npy') 
+
 		np.random.seed(seed)
 		#else:
 		#	self.mode = 'value'
