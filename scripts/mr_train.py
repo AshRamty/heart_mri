@@ -75,16 +75,16 @@ def train_model(args):
     #args = parser.parse_args()
 
 	# Create datasets and dataloaders
-	train, dev, test, classes = load_dataset(args)
+	train, dev, test = load_dataset(args)
 	#print('train size:',len(train)) # 250
 	#print('dev size:',len(dev)) # 250
 	#print('test size:',len(test)) # 250
 	# data in tuple of the form (series,label)
-	# series shape ?
+	# series shape (50,3,224,224)
 
 	#import pdb; pdb.set_trace()
 
-	train_loader, dev_loader, test_loader = data_loader(train, dev, test, args.batch_size)
+	data_loader = get_data_loader(train, dev, test, args.batch_size)
 
 	hidden_size = 128 
 	num_classes = 2

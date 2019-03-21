@@ -163,7 +163,6 @@ class UKBB_LAX_MR(Dataset):
 		#self.postprocess = postprocess
 		csv_data = "{}/labels.csv".format(root_dir)
 		labels = pd.read_csv(csv_data)
-		labels = 3-labels # converting to 1-indexing and making minority class = 1
 		self.labels = labels
 
 		#if frame_label:
@@ -188,17 +187,33 @@ class UKBB_LAX_MR(Dataset):
 
 
 	def __getitem__(self, idx):
-		filename = self.list[idx]
-		PID = filename[20:27] # to write a better way to find this
+		#filename = self.list[idx]		
+		pid = self.labels.iloc[idx, 0]
+		filename = self.root_dir+'/la_4ch/'+str(pid)+'.npy'
+		#print(filename)
 
-		series = np.load(filename)
-		#label = np.load(self.root_dir+'/labels/'+PID+'.npy')
-		label = self.label[idx]
+		label = self.labels.iloc[idx, 1]
+		label = 2-label # converting to 1-indexing and making minority class = 1
+		#print(label)
 
-		#print(series.shape) # (50,108,108)
+		series = np.load(filename)		
+		#print(series.shape) # (50,208,x)
+
+		# padding to 224 x 224
+		n_frames, m, n = series.shape
+		if(m<224):
+			pad_size = (( 225 - m ) // 2 ) 
+			series = np.pad(series,((0,0),(pad_size,pad_size),(0,0)),'minimum')
+
+		if(n<224):
+			pad_size = (( 225 - n ) // 2 ) 
+			series = np.pad(series,((0,0),(0,0),(pad_size,pad_size)),'minimum')	
+
 		series = np.expand_dims(series,1)
 		# converting from gray to RGB
 		series = np.concatenate((series,series,series),axis=1)
-		#print(series.shape) # (50,3,108,108)
+		series = series.astype(float)
+		#print(series.shape) # (50,3,224,224)
+
 
 		return (series, label)
