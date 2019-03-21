@@ -47,10 +47,10 @@ def load_dataset(args):
 	Loading LAX 4ch data
 	'''
 	DataSet = UKBB_LAX_MR
-	train = DataSet(args.train, seed=args.data_seed)
-	dev = DataSet(args.dev,seed=args.data_seed)
+	train = DataSet(args.train, args.mask, seed=args.data_seed)
+	dev = DataSet(args.dev, args.mask, seed=args.data_seed)
 	if args.test:
-		test = DataSet(args.test, seed=args.data_seed)
+		test = DataSet(args.test, args.mask, seed=args.data_seed)
 	else:
 		test = None
 
