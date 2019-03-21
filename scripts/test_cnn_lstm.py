@@ -162,8 +162,8 @@ def load_dataset(args):
 # dataloader 
 def data_loader(train, dev, test=None, batch_size=4, num_workers=1):
 	
-	#train_loader = DataLoader(train, batch_size=batch_size, shuffle=True, num_workers=num_workers)
-	train_loader = DataLoader(train,sampler=ImbalancedDatasetSampler(train), batch_size=batch_size, num_workers=num_workers)
+	train_loader = DataLoader(train, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+	#train_loader = DataLoader(train,sampler=ImbalancedDatasetSampler(train), batch_size=batch_size, num_workers=num_workers)
 	dev_loader   = DataLoader(dev, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 	test_loader  = None if not test else DataLoader(test, batch_size=batch_size,shuffle=False, num_workers=num_workers)
 
@@ -213,8 +213,8 @@ def train_model(args):
 		layer_out_dims=[hidden_size, num_classes],
 		optimizer="adam",
 		use_cuda=cuda,
-		batchnorm=True,
-		seed=123,
+		batchnorm=False,
+		seed=args.seed,
 		verbose=False,
 		)
 	
@@ -229,12 +229,12 @@ def train_model(args):
 		n_epochs=args.n_epochs,
 		log_train_every=1,
 		verbose=True,
-		loss_weights = [0.96,0.04],
+		#loss_weights = [0.96,0.04],
 		batchnorm = 'False',
 		checkpoint_metric = 'f1',
 		log_valid_metrics = ['accuracy','f1'],
-		#input_dropout = 0.1,
-		middle_dropout = 0.1,
+		input_dropout = 0.1,
+		middle_dropout = 0.25,
 		validation_metric='f1',
 		)
 

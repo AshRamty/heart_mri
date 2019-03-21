@@ -280,46 +280,24 @@ def train_model(args):
 	"input_module": lstm_module, 
 	"optimizer": "adam",
 	"verbose": False,
-	"input_batchnorm": True,
+	"input_batchnorm": False,
+	"input_dropout":0,
 	#"use_cuda":torch.cuda.is_available(),
 	'device':device,
 	'seed':123}
 	
-	'''
-	search_space = {
-	'seed' : [123],
-	'n_epochs': [5],
-	'batchnorm' : [True],
-	'dropout': [0],
-	'lr': [1e-3],
-	'log_train_every': 1,
-	'validation_metric': 'f1',
-	}
-	search_space = {
-	'seed' : [123],
-	'n_epochs': [30],
-	'batchnorm' : [True, False],
-	'dropout': [0.1,0.25,0.5],
-	'lr': {'range': [1e-3, 1], 'scale': 'log'},
-	'l2':{'range': [1e-5, 1e-3], 'scale': 'log'},
-	'log_train_every': 1,
-	'loss_weights':[[0.2,0.8],[0.4,0.6],[0.6,0.4],[0.8,0.2]],
-	#'validation_metric': ['f1'],
-	'validation_metric':[['roc-auc', 'accuracy', 'precision', 'recall', 'f1']],
-	}
-	'''
 	search_space = {
 	'n_epochs':[100],
 	'batchnorm':[True],
-	'dropout': [0.1,0.25,0.4],
-	'lr':{'range': [1e-3, 1e-1], 'scale': 'log'}, 
-	'l2':{'range': [1e-5, 1e-3], 'scale': 'log'},#[ 1.21*1e-5],
-	'loss_weights':[[0.04,0.96]],
+	'middle_dropout': [0.1,0.25,0.4],
+	'lr':{'range': [1e-3, 1e-2], 'scale': 'log'}, 
+	'l2':{'range': [1e-5, 1e-4], 'scale': 'log'},#[ 1.21*1e-5],
+	'loss_weights':[[0.9,0.1]],
 	}	
 	
 	log_config = {
 	"log_dir": "./run_logs", 
-	"run_name": 'cnn_lstm_bav'
+	"run_name": 'cnn_lstm_bav_1'
 	}
 
 	max_search = 5
