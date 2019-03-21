@@ -134,7 +134,7 @@ def train_model(args):
 		loss_weights = [0.9,0.1],
 		batchnorm = 'False',
 		log_valid_metrics = ['accuracy','f1'],
-		checkpoint_metric = 'accuracy',
+		checkpoint_metric = 'f1',
 		#validation_metric='accuracy',
 		#input_dropout = 0.1,
 		middle_dropout = dropout,

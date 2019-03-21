@@ -116,7 +116,7 @@ def train_model(args):
     #global args
     #args = parser.parse_args()
 
-	hidden_size =200 
+	hidden_size =128 
 	num_classes = 2
 	encode_dim = 1000 # using get_frm_output_size()
 
