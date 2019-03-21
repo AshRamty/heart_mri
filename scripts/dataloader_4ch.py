@@ -143,3 +143,62 @@ class UKBB_LAX_Roll(Dataset):
 
 		return (series, label)
 
+
+class UKBB_LAX_MR(Dataset):
+	"""
+	UK Biobank cardiac MRI dataset
+	LAX series 
+	A single example is a patient with 50 frames and 1 label
+
+	"""
+	def __init__(self, root_dir, seed=4321):
+		# either load from CSV or just use the provided pandas dataframe
+		
+		self.root_dir = root_dir
+		self.list = glob(root_dir+'/la_4ch/*.npy') 
+		np.random.seed(seed)
+		#self.series = series
+		#self.preprocess = preprocess
+		#self.augment = augmentation
+		#self.postprocess = postprocess
+		csv_data = "{}/labels.csv".format(root_dir)
+		labels = pd.read_csv(csv_data)
+		labels = 3-labels # converting to 1-indexing and making minority class = 1
+		self.labels = labels
+
+		#if frame_label:
+		#    csv_data = "{}/labels_frame.csv".format(root_dir)
+
+		#self.labels = pd.read_csv(csv_data) if type(csv_data) is str else csv_data
+
+
+	#def summary(self):
+		"""
+		Generate message summarizing data (e.g., counts, class balance)
+		Assumes hard labels
+		:return:
+		"""
+		#return "Instances: {}".format(len(self))
+
+	#def get_labels(self):
+		#return [(str(self.labels.iloc[i, 0]), data[1]) for i, data in enumerate(self)]
+
+	def __len__(self):
+		return len(self.labels)
+
+
+	def __getitem__(self, idx):
+		filename = self.list[idx]
+		PID = filename[20:27] # to write a better way to find this
+
+		series = np.load(filename)
+		#label = np.load(self.root_dir+'/labels/'+PID+'.npy')
+		label = self.label[idx]
+
+		#print(series.shape) # (50,108,108)
+		series = np.expand_dims(series,1)
+		# converting from gray to RGB
+		series = np.concatenate((series,series,series),axis=1)
+		#print(series.shape) # (50,3,108,108)
+
+		return (series, label)
