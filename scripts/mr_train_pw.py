@@ -71,7 +71,7 @@ def get_data_loader(train, dev, test=None, batch_size=4, num_workers=1):
 
 def set_init_kwargs():
 	# didn't save init kwargs - to update the oc_cnn_lstm code to save it
-	
+
     hidden_size = 128 
 	num_classes = 2
 	encode_dim = 1000
