@@ -69,6 +69,56 @@ def get_data_loader(train, dev, test=None, batch_size=4, num_workers=1):
 	return data_loader
 
 
+def set_init_kwargs():
+	# didn't save init kwargs - to update the oc_cnn_lstm code to save it
+	
+    hidden_size = 128 
+	num_classes = 2
+	encode_dim = 1000
+
+	cnn_encoder = FrameEncoderOC
+
+	if(torch.cuda.is_available()):
+		device = 'cuda'
+	else:
+		device = 'cpu'
+
+    # Define LSTM module
+	lstm_module = LSTMModule(
+		encode_dim,
+		hidden_size,
+		bidirectional=False,
+		verbose=False,
+		lstm_reduction="attention",
+		encoder_class=cnn_encoder,
+		)
+
+	init_kwargs = {
+	"layer_out_dims":[hidden_size, num_classes]
+	"input_module": lstm_module, 
+	"optimizer": "adam",
+	"verbose": False,
+	"input_batchnorm": True,
+	"use_cuda":torch.cuda.is_available(),
+	'checkpoint_dir':args.checkpoint_dir,
+	'seed':args.seed,
+	'device':device}
+
+	return init_kwargs
+
+
+def load_model_snapshot(inputdir):
+    """
+    Load 
+    """
+    #init_kwargs = pickle.load(open(f'{inputdir}/init_kwargs.pkl', "rb"))
+    init_kwargs = set_init_kwargs()
+    model = EndModel(**init_kwargs)
+    map_location = 'gpu' if torch.cuda.is_available() else 'cpu'
+    model_state = torch.load(open(f"{inputdir}/best_model.pkl",'rb'), map_location=map_location)
+    model.load_state_dict(model_state)
+    return model
+
 # def train_model(args):
 def train_model(args):
 
@@ -95,11 +145,6 @@ def train_model(args):
 	# Define input encoder
 	cnn_encoder = FrameEncoderOC
 
-	if(torch.cuda.is_available()):
-		device = 'cuda'
-	else:
-		device = 'cpu'
-
 	# Define LSTM module
 	lstm_module = LSTMModule(
 		encode_dim,
@@ -121,6 +166,11 @@ def train_model(args):
 		verbose=False,
 		)
 	'''
+
+	if(torch.cuda.is_available()):
+		device = 'cuda'
+	else:
+		device = 'cpu'
 
 	with open(args.pretrained_model_path+'/best_model.pth', "rb") as f:
             model = pickle.load(f)
