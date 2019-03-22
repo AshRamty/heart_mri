@@ -174,6 +174,7 @@ def train_model(args):
 		encoder_class=cnn_encoder,
 		)
 
+	'''
 	# Define end model
 	end_model = EndModel(
 		input_module=lstm_module,
@@ -185,7 +186,23 @@ def train_model(args):
 		verbose=False,
 		device = device,
 		)
-	
+	'''
+
+	init_kwargs = {
+	"layer_out_dims":[hidden_size, num_classes],
+	"input_module": lstm_module, 
+	"optimizer": "adam",
+	"verbose": False,
+	"input_batchnorm": False,
+	"use_cuda":cuda,
+	'seed':args.seed,
+	'device':device}
+
+	model = EndModel(**init_kwargs)
+
+	with open(args.pretrained_model_path+'/init_kwargs.pkl', "wb") as f:
+		pickle.dump(f,init_kwargs)
+
 	dropout = 0.4
 	# Train end model
 	end_model.train_model(

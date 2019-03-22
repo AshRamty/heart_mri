@@ -98,7 +98,7 @@ def set_init_kwargs():
 	"input_module": lstm_module, 
 	"optimizer": "adam",
 	"verbose": False,
-	"input_batchnorm": True,
+	"input_batchnorm": False,
 	"use_cuda":torch.cuda.is_available(),
 	'checkpoint_dir':args.checkpoint_dir,
 	'seed':args.seed,
