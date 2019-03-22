@@ -111,15 +111,15 @@ def load_model_snapshot(inputdir):
 	"""
 	Load 
 	"""
-	#init_kwargs = pickle.load(open(f'{inputdir}/init_kwargs.pkl', "rb"))
-	init_kwargs = set_init_kwargs()
+	init_kwargs = pickle.load(open(f'{inputdir}/init_kwargs.pickle', "rb"))
+	#init_kwargs = set_init_kwargs()
 	model = EndModel(**init_kwargs)
 	map_location = 'gpu' if torch.cuda.is_available() else 'cpu'
 	model_state = torch.load(open(f"{inputdir}/best_model.pth",'rb'))
 	#model_state = torch.load(open(f"{inputdir}/best_model.pth",'rb'), map_location=map_location)
 	model.load_state_dict(model_state["model"])
-	model.optimizer.load_state_dict(model_state["optimizer"])
-	model.lr_scheduler.load_state_dict(model_state["lr_scheduler"])
+	#model.optimizer.load_state_dict(model_state["optimizer"])
+	#model.lr_scheduler.load_state_dict(model_state["lr_scheduler"])
 	return model
 
 # def train_model(args):
@@ -177,7 +177,7 @@ def train_model(args):
 
 	#with open(args.pretrained_model_path+'/best_model.pth', "rb") as f:
         #    model = pickle.load(f)
-	import pdb; pdb.set_trace()
+	#import pdb; pdb.set_trace()
 
 	model = load_model_snapshot(args.pretrained_model_path)
 
