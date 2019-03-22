@@ -118,6 +118,8 @@ def load_model_snapshot(inputdir):
 	model_state = torch.load(open(f"{inputdir}/best_model.pth",'rb'))
 	#model_state = torch.load(open(f"{inputdir}/best_model.pth",'rb'), map_location=map_location)
 	model.load_state_dict(model_state["model"])
+	model.optimizer.load_state_dict(model_state["optimizer"])
+	model.lr_scheduler.load_state_dict(model_state["lr_scheduler"])
 	return model
 
 # def train_model(args):
