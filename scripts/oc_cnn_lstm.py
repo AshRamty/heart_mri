@@ -9,6 +9,7 @@ sys.path.append('../metal')
 sys.path.append('../heart-MRI-pytorch')
 sys.path.append('../data')
 
+import pickle
 import numpy as np
 import argparse
 import torch
