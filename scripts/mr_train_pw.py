@@ -72,8 +72,7 @@ def get_data_loader(train, dev, test=None, batch_size=4, num_workers=1):
 
 def set_init_kwargs():
 	# didn't save init kwargs - to update the oc_cnn_lstm code to save it
-
-    hidden_size = 128 
+	hidden_size = 128 
 	num_classes = 2
 	encode_dim = 1000
 
@@ -83,8 +82,8 @@ def set_init_kwargs():
 		device = 'cuda'
 	else:
 		device = 'cpu'
-
-    # Define LSTM module
+	
+	# Define LSTM module
 	lstm_module = LSTMModule(
 		encode_dim,
 		hidden_size,
@@ -95,7 +94,7 @@ def set_init_kwargs():
 		)
 
 	init_kwargs = {
-	"layer_out_dims":[hidden_size, num_classes]
+	"layer_out_dims":[hidden_size, num_classes],
 	"input_module": lstm_module, 
 	"optimizer": "adam",
 	"verbose": False,
@@ -116,7 +115,7 @@ def load_model_snapshot(inputdir):
     init_kwargs = set_init_kwargs()
     model = EndModel(**init_kwargs)
     map_location = 'gpu' if torch.cuda.is_available() else 'cpu'
-    model_state = torch.load(open(f"{inputdir}/best_model.pkl",'rb'), map_location=map_location)
+    model_state = torch.load(open(f"{inputdir}/best_model.pth",'rb'), map_location=map_location)
     model.load_state_dict(model_state)
     return model
 
@@ -173,8 +172,9 @@ def train_model(args):
 	else:
 		device = 'cpu'
 
-	with open(args.pretrained_model_path+'/best_model.pth', "rb") as f:
-            model = pickle.load(f)
+	#with open(args.pretrained_model_path+'/best_model.pth', "rb") as f:
+        #    model = pickle.load(f)
+	model = load_model_snapshot(args.pretrained_model_path)
 
 	dropout = 0.4
 	# Train end model
