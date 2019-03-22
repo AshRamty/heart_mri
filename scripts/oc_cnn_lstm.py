@@ -200,7 +200,7 @@ def train_model(args):
 
 	model = EndModel(**init_kwargs)
 
-	with open(args.pretrained_model_path+'/init_kwargs.pkl', "wb") as f:
+	with open(args.checkpoint_dir+'/init_kwargs.pkl', "wb") as f:
 		pickle.dump(f,init_kwargs)
 
 	dropout = 0.4
