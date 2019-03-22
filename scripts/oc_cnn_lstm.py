@@ -200,6 +200,7 @@ def train_model(args):
 
 	model = EndModel(**init_kwargs)
 
+	os.mkdir(args.checkpoint_dir)
 	with open(args.checkpoint_dir+'/init_kwargs.pkl', "wb") as f:
 		pickle.dump(f,init_kwargs)
 
