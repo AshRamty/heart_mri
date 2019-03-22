@@ -108,23 +108,23 @@ def set_init_kwargs():
 
 
 def load_model_snapshot(inputdir):
-    """
-    Load 
-    """
-    #init_kwargs = pickle.load(open(f'{inputdir}/init_kwargs.pkl', "rb"))
-    init_kwargs = set_init_kwargs()
-    model = EndModel(**init_kwargs)
-    map_location = 'gpu' if torch.cuda.is_available() else 'cpu'
-    model_state = torch.load(open(f"{inputdir}/best_model.pth",'rb'))
+	"""
+	Load 
+	"""
+	#init_kwargs = pickle.load(open(f'{inputdir}/init_kwargs.pkl', "rb"))
+	init_kwargs = set_init_kwargs()
+	model = EndModel(**init_kwargs)
+	map_location = 'gpu' if torch.cuda.is_available() else 'cpu'
+	model_state = torch.load(open(f"{inputdir}/best_model.pth",'rb'))
 	#model_state = torch.load(open(f"{inputdir}/best_model.pth",'rb'), map_location=map_location)
-    model.load_state_dict(model_state["model"])
-    return model
+	model.load_state_dict(model_state["model"])
+	return model
 
 # def train_model(args):
 def train_model(args):
 
-    #global args
-    #args = parser.parse_args()
+	#global args
+	#args = parser.parse_args()
 
 	# Create datasets and dataloaders
 	train, dev, test = load_dataset(args)
