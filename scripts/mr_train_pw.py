@@ -115,8 +115,9 @@ def load_model_snapshot(inputdir):
     init_kwargs = set_init_kwargs()
     model = EndModel(**init_kwargs)
     map_location = 'gpu' if torch.cuda.is_available() else 'cpu'
-    model_state = torch.load(open(f"{inputdir}/best_model.pth",'rb'), map_location=map_location)
-    model.load_state_dict(model_state)
+    model_state = torch.load(open(f"{inputdir}/best_model.pth",'rb'))
+	#model_state = torch.load(open(f"{inputdir}/best_model.pth",'rb'), map_location=map_location)
+    model.load_state_dict(model_state["model"])
     return model
 
 # def train_model(args):
@@ -174,6 +175,8 @@ def train_model(args):
 
 	#with open(args.pretrained_model_path+'/best_model.pth', "rb") as f:
         #    model = pickle.load(f)
+	import pdb; pdb.set_trace()
+
 	model = load_model_snapshot(args.pretrained_model_path)
 
 	dropout = 0.4
@@ -233,7 +236,7 @@ if __name__ == "__main__":
 	argparser.add_argument("--seed",type=int,default=123,help="random seed for initialisation")
 	argparser.add_argument("--mask",type=str,default=False,help="Selects whether to use segmented data")
 	argparser.add_argument("--checkpoint_dir", type=str, default="mr_checkpoints", help="dir to save checkpoints")
-	argparser.add_argument("--pretrained_model_path", type=str, default="oc_checkpoints", help="dir of the best pretrained model")
+	argparser.add_argument("--pretrained_model_path", type=str, default="oc_checkpoints_pw", help="dir of the best pretrained model")
 
 	args = argparser.parse_args()
 
