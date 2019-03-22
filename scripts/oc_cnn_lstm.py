@@ -199,11 +199,13 @@ def train_model(args):
 	'seed':args.seed,
 	'device':device}
 
-	model = EndModel(**init_kwargs)
-
-	os.mkdir(args.checkpoint_dir)
-	with open(args.checkpoint_dir+'/init_kwargs.pkl', "wb") as f:
-		pickle.dump(f,init_kwargs)
+	end_model = EndModel(**init_kwargs)
+	
+	if not os.path.exists(args.checkpoint_dir):
+		os.mkdir(args.checkpoint_dir)
+	
+	with open(args.checkpoint_dir+'/init_kwargs.pickle', "wb") as f:
+		pickle.dump(init_kwargs,f,protocol=pickle.HIGHEST_PROTOCOL)
 
 	dropout = 0.4
 	# Train end model
