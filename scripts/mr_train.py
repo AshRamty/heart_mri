@@ -131,7 +131,7 @@ def train_model(args):
 		log_train_every=1,
 		verbose=True,
 		progress_bar = True,
-		loss_weights = [0.9,0.1],
+		#loss_weights = [0.9,0.1],
 		batchnorm = 'False',
 		log_valid_metrics = ['accuracy','f1'],
 		checkpoint_metric = 'f1',
