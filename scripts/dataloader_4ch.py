@@ -155,7 +155,7 @@ class UKBB_LAX_MR(Dataset):
 	A single example is a patient with 50 frames and 1 label
 
 	"""
-	def __init__(self, root_dir, seed=4321):
+	def __init__(self, root_dir, mask = False, seed=4321):
 		# either load from CSV or just use the provided pandas dataframe
 		
 		self.root_dir = root_dir
@@ -168,6 +168,7 @@ class UKBB_LAX_MR(Dataset):
 		csv_data = "{}/labels.csv".format(root_dir)
 		labels = pd.read_csv(csv_data)
 		self.labels = labels
+		self.mask = mask
 
 		#if frame_label:
 		#    csv_data = "{}/labels_frame.csv".format(root_dir)
@@ -193,14 +194,19 @@ class UKBB_LAX_MR(Dataset):
 	def __getitem__(self, idx):
 		#filename = self.list[idx]		
 		pid = self.labels.iloc[idx, 0]
-		filename = self.root_dir+'/la_4ch/'+str(pid)+'.npy'
-		#print(filename)
 
-		label = self.labels.iloc[idx, 1]
-		label = 2-label # converting to 1-indexing and making minority class = 1
-		#print(label)
+		if(self.mask):
+			data_filename = self.root_dir+'/la_4ch/'+str(pid)+'.npy'
+			mask_filename = self.root_dir+'/la_4ch_mask/'+str(pid)+'.npy'
+			temp_data = np.load(data_filename)
+			temp_mask = np.load(mask_filename)
+			series = np.multiply(temp_data,temp_mask)
+		else:
+			filename = self.root_dir+'/la_4ch/'+str(pid)+'.npy'
+			#print(filename)
+			series = np.load(filename)
 
-		series = np.load(filename)		
+				
 		#print(series.shape) # (50,208,x)
 
 		# padding to 224 x 224
@@ -219,5 +225,8 @@ class UKBB_LAX_MR(Dataset):
 		series = series.astype(float)
 		#print(series.shape) # (50,3,224,224)
 
+		label = self.labels.iloc[idx, 1]
+		label = 2-label # converting to 1-indexing and making minority class = 1
+		#print(label)
 
 		return (series, label)

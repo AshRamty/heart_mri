@@ -1,6 +1,7 @@
 '''
 Runs supervised learning on MR data
 Does not include hyperparameter tuning
+Uses pretrained weights from open/close training 
 
 '''
 import sys
@@ -86,6 +87,7 @@ def train_model(args):
 
 	data_loader = get_data_loader(train, dev, test, args.batch_size)
 
+	'''
 	hidden_size = 128 
 	num_classes = 2
 	encode_dim = 1000
@@ -118,11 +120,14 @@ def train_model(args):
 		seed=args.seed,
 		verbose=False,
 		)
-	
+	'''
+
+	with open(args.pretrained_model_path+'/best_model.pth', "rb") as f:
+            model = pickle.load(f)
 
 	dropout = 0.4
 	# Train end model
-	end_model.train_model(
+	model.train_model(
 		train_data=data_loader["train"],
 		valid_data=data_loader["dev"],
 		l2=args.weight_decay,
@@ -131,7 +136,7 @@ def train_model(args):
 		log_train_every=1,
 		verbose=True,
 		progress_bar = True,
-		#loss_weights = [0.9,0.1],
+		loss_weights = [0.9,0.1],
 		batchnorm = 'False',
 		log_valid_metrics = ['accuracy','f1'],
 		checkpoint_metric = 'f1',
@@ -142,7 +147,7 @@ def train_model(args):
 		)
 
 
-	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy', 'precision', 'recall', 'f1','roc-auc'])
+	model.score(data_loader["dev"], verbose=True, metric=['accuracy', 'precision', 'recall', 'f1','roc-auc'])
 	# Test end model 
 	'''
 	if(test_loader != None):
@@ -177,6 +182,7 @@ if __name__ == "__main__":
 	argparser.add_argument("--seed",type=int,default=123,help="random seed for initialisation")
 	argparser.add_argument("--mask",type=str,default=False,help="Selects whether to use segmented data")
 	argparser.add_argument("--checkpoint_dir", type=str, default="mr_checkpoints", help="dir to save checkpoints")
+	argparser.add_argument("--pretrained_model_path", type=str, default="oc_checkpoints", help="dir of the best pretrained model")
 
 	args = argparser.parse_args()
 
