@@ -112,6 +112,7 @@ def load_model_snapshot(inputdir):
 	Load 
 	"""
 	init_kwargs = pickle.load(open(f'{inputdir}/init_kwargs.pickle', "rb"))
+	init_kwargs["seed"] = args.seed
 	#init_kwargs = set_init_kwargs()
 	model = EndModel(**init_kwargs)
 	map_location = 'gpu' if torch.cuda.is_available() else 'cpu'
