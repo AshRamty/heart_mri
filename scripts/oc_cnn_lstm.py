@@ -157,7 +157,8 @@ def train_model(args):
 	#import ipdb; ipdb.set_trace()
 
 	# Define input encoder
-	cnn_encoder = FrameEncoderOC
+	#cnn_encoder = FrameEncoderOC
+	cnn_encoder = FrameEncoderOC(requires_grad = args.requires_grad)
 
 	if(torch.cuda.is_available()):
 		device = 'cuda'
@@ -259,6 +260,8 @@ if __name__ == "__main__":
 
 	argparser.add_argument("--mask",type=str,default=False,help="Selects whether to use segmented data")
 	argparser.add_argument("--checkpoint_dir", type=str, default="oc_checkpoints", help="dir to save checkpoints")
+
+	argparser.add_argument("--requires_grad", type=str, default="False", help="Selects whether to freeze or finetune frame encoder")
 
 	args = argparser.parse_args()
 
