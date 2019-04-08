@@ -230,3 +230,73 @@ class UKBB_LAX_MR(Dataset):
 		#print(label)
 
 		return (series, label)
+
+
+class UKBB_LAX_SelfSupervised(Dataset):
+	"""
+	UK Biobank cardiac MRI dataset
+	LAX series 
+	For the self-supervised task 
+	Uses a similar structure to "UKB_LAX_Roll" which is used for the open / close task
+	expands the data from using patient indexing to frame indexing
+	(num_eg, num_frames, img) --> (num_eg*num_frames, num_frames, img)
+	labels: (num_eg, num_frames) --> (num_eg*num_frames)
+	Data is rolled such that the data starts with the frame_num corresponding to label
+	
+	The data is assigned class 1 if it has the correct temporal ordering
+	class 2 if it has a shuffled temporal ordering 
+	
+
+	"""
+	def __init__(self,root_dir, seed=123, mask = False):
+		self.root_dir = root_dir
+		if(mask):
+			self.list = glob(root_dir+'/la_4ch_masked/*.npy') 
+		else:
+			self.list = glob(root_dir+'/la_4ch/*.npy') 
+
+		np.random.seed(seed)
+
+	def __len__(self):
+		return len(self.list)
+
+	def __getitem__(self, idx):
+		# finding patient id number
+		p_idx = idx // 50
+		frame_num = idx % 50 
+		
+		filename = self.list[p_idx]
+		series = np.load(filename)
+		series = series.astype(float) # type float64		
+
+		# roll series based on frame_num
+		# to verify this.
+		series = np.roll(series,-frame_num,axis=0) 
+		#print(series.shape) # (50,108,108)
+
+		# padding to 128 x 128 - to remove later by changing the cropping
+		#series = np.pad(series,((0,0),(10,10),(10,10)),'minimum')
+		#print(series.shape) # (50,128,128)
+		n_frames, m, n = series.shape
+		if(m<224):
+			pad_size = (( 225 - m ) // 2 ) 
+			series = np.pad(series,((0,0),(pad_size,pad_size),(0,0)),'minimum')
+
+		if(n<224):
+			pad_size = (( 225 - n ) // 2 ) 
+			series = np.pad(series,((0,0),(0,0),(pad_size,pad_size)),'minimum')		
+
+		#print(series.shape) # (50,224,224)
+		series = np.expand_dims(series,1) # (50,1,224,224)
+
+		# converting from gray to RGB
+		series = np.concatenate((series,series,series),axis=1)
+		#print(series.shape) # (50,3,224,224)
+
+		if(np.random.random() > 0.5): # sequential order maintained
+			label = 1;
+		else: 	# data is shuffled 
+			label = 2;
+			series = np.random.shuffle(series) # by default shuffles first axis
+
+		return (series, label)
