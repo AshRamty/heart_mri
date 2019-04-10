@@ -173,8 +173,8 @@ def train_model(args):
 		bidirectional=False,
 		verbose=False,
 		lstm_reduction=args.lstm_reduction,
-		requires_grad = args.requires_grad,
 		encoder_class=cnn_encoder,
+		encoder_kwargs = {"requires_grad":args.requires_grad}
 		)
 
 	'''
