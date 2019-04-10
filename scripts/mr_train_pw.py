@@ -24,9 +24,6 @@ from torch.utils.data import Dataset, DataLoader
 from metal.end_model import EndModel
 from metal.contrib.modules import Encoder, LSTMModule
 
-#import metal.contrib.modules.resnet_cifar10 as resnet
-#from dataloaders.ukbb import UKBBCardiacMRI
-#from models.frame.densenet_av import DenseNet3, densenet_40_12_bc
 from dataloader_4ch import UKBB_LAX_MR
 from frame_encoder import FrameEncoderOC
 from sampler import ImbalancedDatasetSampler
@@ -91,6 +88,7 @@ def set_init_kwargs():
 		verbose=False,
 		lstm_reduction="attention",
 		encoder_class=cnn_encoder,
+		encoder_kwargs = {"requires_grad":args.requires_grad}
 		)
 
 	init_kwargs = {
@@ -114,20 +112,20 @@ def load_model_snapshot(inputdir):
 	init_kwargs = pickle.load(open(f'{inputdir}/init_kwargs.pickle', "rb"))
 	init_kwargs["seed"] = args.seed
 	#init_kwargs = set_init_kwargs()
+
 	model = EndModel(**init_kwargs)
 	map_location = 'gpu' if torch.cuda.is_available() else 'cpu'
 	model_state = torch.load(open(f"{inputdir}/best_model.pth",'rb'))
 	#model_state = torch.load(open(f"{inputdir}/best_model.pth",'rb'), map_location=map_location)
+	
 	model.load_state_dict(model_state["model"])
 	#model.optimizer.load_state_dict(model_state["optimizer"])
 	#model.lr_scheduler.load_state_dict(model_state["lr_scheduler"])
+
 	return model
 
 # def train_model(args):
 def train_model(args):
-
-	#global args
-	#args = parser.parse_args()
 
 	# Create datasets and dataloaders
 	train, dev, test = load_dataset(args)
@@ -137,50 +135,15 @@ def train_model(args):
 	# data in tuple of the form (series,label)
 	# series shape (50,3,224,224)
 
-	#import pdb; pdb.set_trace()
-
 	data_loader = get_data_loader(train, dev, test, args.batch_size)
-
-	'''
-	hidden_size = 128 
-	num_classes = 2
-	encode_dim = 1000
-
-	# Define input encoder
-	cnn_encoder = FrameEncoderOC
-
-	# Define LSTM module
-	lstm_module = LSTMModule(
-		encode_dim,
-		hidden_size,
-		bidirectional=False,
-		verbose=False,
-		lstm_reduction="attention",
-		encoder_class=cnn_encoder,
-		)
-
-	# Define end model
-	end_model = EndModel(
-		input_module=lstm_module,
-		layer_out_dims=[hidden_size, num_classes],
-		optimizer="adam",
-		use_cuda=cuda,
-		batchnorm=True,
-		seed=args.seed,
-		verbose=False,
-		)
-	'''
 
 	if(torch.cuda.is_available()):
 		device = 'cuda'
 	else:
 		device = 'cpu'
 
-	#with open(args.pretrained_model_path+'/best_model.pth', "rb") as f:
-        #    model = pickle.load(f)
-	#import pdb; pdb.set_trace()
-
 	model = load_model_snapshot(args.pretrained_model_path)
+	import pdb; pdb.set_trace()
 
 	dropout = 0.4
 	# Train end model
@@ -240,6 +203,8 @@ if __name__ == "__main__":
 	argparser.add_argument("--mask",type=str,default=False,help="Selects whether to use segmented data")
 	argparser.add_argument("--checkpoint_dir", type=str, default="mr_checkpoints", help="dir to save checkpoints")
 	argparser.add_argument("--pretrained_model_path", type=str, default="oc_checkpoints_pw", help="dir of the best pretrained model")
+
+	argparser.add_argument("--requires_grad", type=bool, default=False, help="Selects whether to freeze or finetune frame encoder")
 
 	args = argparser.parse_args()
 
