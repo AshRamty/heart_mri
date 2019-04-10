@@ -40,6 +40,7 @@ from metal.analysis import lf_summary, confusion_matrix
 from sampler import ImbalancedDatasetSampler
 
 logger = logging.getLogger(__name__)
+
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 #warnings.filterwarnings("ignore", category=UndefinedMetricWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -259,10 +260,10 @@ if __name__ == "__main__":
 	argparser.add_argument("--seed",type=int,default=123,help="random seed for initialisation")
 	argparser.add_argument("--lstm_reduction",type=str,default="attention",help="LSTM reduction at output layer")
 
-	argparser.add_argument("--mask",type=str,default=False,help="Selects whether to use segmented data")
+	argparser.add_argument("--mask",type=bool,default=False,help="Selects whether to use segmented data")
 	argparser.add_argument("--checkpoint_dir", type=str, default="oc_checkpoints", help="dir to save checkpoints")
 
-	argparser.add_argument("--requires_grad", type=str, default="False", help="Selects whether to freeze or finetune frame encoder")
+	argparser.add_argument("--requires_grad", type=bool, default=False, help="Selects whether to freeze or finetune frame encoder")
 
 	args = argparser.parse_args()
 
