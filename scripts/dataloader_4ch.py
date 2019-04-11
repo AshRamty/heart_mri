@@ -295,9 +295,9 @@ class UKBB_LAX_SelfSupervised(Dataset):
 			label = 2;
 			frame1 = np.random.randint(0,n_frames-1)
 			frame2 = np.random.randint(0,n_frames-1)
-			temp = series(frame1,:,:)
-			series(frame1,:,:) = series(frame2,:,:)
-			series(frame2,:,:) = temp
+			temp = series[frame1,:,:]
+			series[frame1,:,:] = series[frame2,:,:]
+			series[frame2,:,:] = temp
 			#series = np.random.shuffle(series) # by default shuffles first axis
 
 		# converting from gray to RGB
