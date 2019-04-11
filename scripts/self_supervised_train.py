@@ -136,7 +136,7 @@ def train_model(args):
 		#validation_metric='f1',
 		)
 
-	end_model.score(dev_loader, verbose=True, metric=['accuracy', 'precision', 'recall', 'f1','roc-auc'])
+	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy', 'precision', 'recall', 'f1','roc-auc'])
 
 
 

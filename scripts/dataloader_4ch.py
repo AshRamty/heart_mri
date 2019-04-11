@@ -248,7 +248,7 @@ class UKBB_LAX_SelfSupervised(Dataset):
 	
 
 	"""
-	def __init__(self,root_dir, seed=123, mask = False):
+	def __init__(self, root_dir, seed=123, mask = False):
 		self.root_dir = root_dir
 		if(mask):
 			self.list = glob(root_dir+'/la_4ch_masked/*.npy') 
@@ -258,7 +258,7 @@ class UKBB_LAX_SelfSupervised(Dataset):
 		np.random.seed(seed)
 
 	def __len__(self):
-		return len(self.list)
+		return len(self.list*50) # number of PIDs x number of frames - to write better
 
 	def __getitem__(self, idx):
 		# finding patient id number
