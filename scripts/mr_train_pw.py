@@ -109,9 +109,12 @@ def load_model_snapshot(args,inputdir):
 	"""
 	Load 
 	"""
-	if(!args.requires_grad): # if frame encoder weights to be frozen for MR, finetuned over open close
+	import ipdb; ipdb.set_trace();
+
+	# if frame encoder weights to be frozen for MR, finetuned over open close
+	if(args.requires_grad == False):
 		init_kwargs = set_init_kwargs(args)
-	else: # if frame encoder weights to be finetuned for MR and finetuned over open close 
+	else:  # if frame encoder weights to be finetuned for MR and finetuned over open close 
 		init_kwargs = pickle.load(open(f'{inputdir}/init_kwargs.pickle', "rb"))
 		init_kwargs["seed"] = args.seed
 
