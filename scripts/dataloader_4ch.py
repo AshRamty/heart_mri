@@ -289,14 +289,19 @@ class UKBB_LAX_SelfSupervised(Dataset):
 		#print(series.shape) # (50,224,224)
 		series = np.expand_dims(series,1) # (50,1,224,224)
 
+		if(np.random.random() > 0.5): # sequential order maintained
+			label = 1;
+		else: 	# two random frames are swapped
+			label = 2;
+			frame1 = np.random.randint(0,n_frames-1)
+			frame2 = np.random.randint(0,n_frames-1)
+			temp = series(frame1,:,:)
+			series(frame1,:,:) = series(frame2,:,:)
+			series(frame2,:,:) = temp
+			#series = np.random.shuffle(series) # by default shuffles first axis
+
 		# converting from gray to RGB
 		series = np.concatenate((series,series,series),axis=1)
 		#print(series.shape) # (50,3,224,224)
-
-		if(np.random.random() > 0.5): # sequential order maintained
-			label = 1;
-		else: 	# data is shuffled 
-			label = 2;
-			series = np.random.shuffle(series) # by default shuffles first axis
 
 		return (series, label)
