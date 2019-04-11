@@ -67,7 +67,7 @@ def get_data_loader(train, dev, test=None, batch_size=4, num_workers=1):
 	return data_loader
 
 
-def set_init_kwargs():
+def set_init_kwargs(args):
 	# didn't save init kwargs - to update the oc_cnn_lstm code to save it
 	hidden_size = 128 
 	num_classes = 2
@@ -105,13 +105,16 @@ def set_init_kwargs():
 	return init_kwargs
 
 
-def load_model_snapshot(inputdir):
+def load_model_snapshot(args,inputdir):
 	"""
 	Load 
 	"""
-	init_kwargs = pickle.load(open(f'{inputdir}/init_kwargs.pickle', "rb"))
-	init_kwargs["seed"] = args.seed
-	#init_kwargs = set_init_kwargs()
+	if(!args.requires_grad): # if frame encoder weights to be frozen for MR, finetuned over open close
+		init_kwargs = set_init_kwargs(args)
+	else: # if frame encoder weights to be finetuned for MR and finetuned over open close 
+		init_kwargs = pickle.load(open(f'{inputdir}/init_kwargs.pickle', "rb"))
+		init_kwargs["seed"] = args.seed
+
 
 	model = EndModel(**init_kwargs)
 	map_location = 'gpu' if torch.cuda.is_available() else 'cpu'
@@ -142,7 +145,7 @@ def train_model(args):
 	else:
 		device = 'cpu'
 
-	model = load_model_snapshot(args.pretrained_model_path)
+	model = load_model_snapshot(args,args.pretrained_model_path)
 	import pdb; pdb.set_trace()
 
 	dropout = 0.4
