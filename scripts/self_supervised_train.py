@@ -134,7 +134,7 @@ def train_model(args):
 		middle_dropout = dropout,
 		checkpoint_dir = args.checkpoint_dir,
 		log_valid_metrics = ['accuracy', 'f1'],
-		validation_metric='f1',
+		checkpoint_metric='f1',
 		)
 
 	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy', 'precision', 'recall', 'f1','roc-auc'])
