@@ -289,16 +289,16 @@ class UKBB_LAX_SelfSupervised(Dataset):
 
 		#print(series.shape) # (50,224,224)
 		
-		if(self.shuffle == True):
-			indices = np.arange(n_frames)
-			np.random.shuffle(indices)
-			series = series[indices,:,:]
-			#np.random.shuffle(series) # by default shuffles first axis
-		else:
-			if(np.random.random() > 0.5): # sequential order maintained
-				label = 1;
-			else: 	# two random frames are swapped
-				label = 2;
+		if(np.random.random() > 0.5): # sequential order maintained
+			label = 1;
+		else: 	# two random frames are swapped
+			label = 2;
+			if(self.shuffle == True):
+				indices = np.arange(n_frames)
+				np.random.shuffle(indices)
+				series = series[indices,:,:]
+				#np.random.shuffle(series) # by default shuffles first axis
+			else:
 				num_shuffle = 5;
 				for i in np.arange(num_shuffle):
 					frame1 = np.random.randint(0,n_frames-1)
