@@ -248,7 +248,7 @@ class UKBB_LAX_SelfSupervised(Dataset):
 	
 
 	"""
-	def __init__(self, root_dir, seed=123, mask = False):
+	def __init__(self, root_dir, seed=123, mask = False, shuffle = False):
 		self.root_dir = root_dir
 		if(mask):
 			self.list = glob(root_dir+'/la_4ch_masked/*.npy') 
@@ -289,16 +289,24 @@ class UKBB_LAX_SelfSupervised(Dataset):
 		#print(series.shape) # (50,224,224)
 		series = np.expand_dims(series,1) # (50,1,224,224)
 
-		if(np.random.random() > 0.5): # sequential order maintained
-			label = 1;
-		else: 	# two random frames are swapped
-			label = 2;
-			frame1 = np.random.randint(0,n_frames-1)
-			frame2 = np.random.randint(0,n_frames-1)
-			temp = series[frame1,:,:]
-			series[frame1,:,:] = series[frame2,:,:]
-			series[frame2,:,:] = temp
-			#series = np.random.shuffle(series) # by default shuffles first axis
+		if(shuffle == True):
+			#indices = np.arange(n_frames)
+			#np.random.shuffle(indices)
+			#series = series[indices,:,:]
+			np.random.shuffle(series) # by default shuffles first axis
+		else:
+			if(np.random.random() > 0.5): # sequential order maintained
+				label = 1;
+			else: 	# two random frames are swapped
+				label = 2;
+				num_shuffle = 5;
+				for i in np.range(num_shuffle):
+					frame1 = np.random.randint(0,n_frames-1)
+					frame2 = np.random.randint(0,n_frames-1)
+					temp = series[frame1,:,:]
+					series[frame1,:,:] = series[frame2,:,:]
+					series[frame2,:,:] = temp
+			
 
 		# converting from gray to RGB
 		series = np.concatenate((series,series,series),axis=1)

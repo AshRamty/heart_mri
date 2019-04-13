@@ -45,13 +45,13 @@ def load_dataset(args):
 	Loading LAX 4ch data
 	'''
 	DataSet = UKBB_LAX_SelfSupervised
-	train = DataSet(args.train, seed=args.data_seed, mask = args.mask)
+	train = DataSet(args.train, seed=args.data_seed, mask = args.mask, shuffle = args.data_shuffle)
 	#dev = DataSet(args.dev, np.expand_dims(Ydev,1), seed=args.data_seed)
-	dev = DataSet(args.dev, seed=args.data_seed, mask = args.mask)
+	dev = DataSet(args.dev, seed=args.data_seed, mask = args.mask, shuffle = args.data_shuffle)
 
 	if args.test:
 		#test = DataSet(args.test, np.expand_dims(Ytest,1), seed=args.data_seed)
-		test = DataSet(args.test, seed=args.data_seed, mask = args.mask)
+		test = DataSet(args.test, seed=args.data_seed, mask = args.mask, shuffle = args.data_shuffle)
 	else:
 		test = None
 
@@ -168,8 +168,9 @@ if __name__ == "__main__":
 	argparser.add_argument("--seed",type=int,default=123,help="random seed for initialisation")
 	argparser.add_argument("--lstm_reduction",type=str,default="attention",help="LSTM reduction at output layer")
 
-	argparser.add_argument("--mask",type=str,default=False,help="Selects whether to use segmented data")
+	argparser.add_argument("--mask",type=bool,default=False,help="Selects whether to use segmented data")
 	argparser.add_argument("--checkpoint_dir", type=str, default="oc_checkpoints", help="dir to save checkpoints")
+	argparser.add_argument("--data_shuffle", type=bool, default=False, help="Selects whether to shuffle all the frames vs shuffling some frames")
 
 	args = argparser.parse_args()
 
