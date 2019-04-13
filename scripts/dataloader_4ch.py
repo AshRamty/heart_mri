@@ -256,6 +256,7 @@ class UKBB_LAX_SelfSupervised(Dataset):
 			self.list = glob(root_dir+'/la_4ch/*.npy') 
 
 		np.random.seed(seed)
+		self.shuffle = shuffle
 
 	def __len__(self):
 		return len(self.list*50) # number of PIDs x number of frames - to write better
@@ -287,20 +288,19 @@ class UKBB_LAX_SelfSupervised(Dataset):
 			series = np.pad(series,((0,0),(0,0),(pad_size,pad_size)),'minimum')		
 
 		#print(series.shape) # (50,224,224)
-		series = np.expand_dims(series,1) # (50,1,224,224)
-
-		if(shuffle == True):
-			#indices = np.arange(n_frames)
-			#np.random.shuffle(indices)
-			#series = series[indices,:,:]
-			np.random.shuffle(series) # by default shuffles first axis
+		
+		if(self.shuffle == True):
+			indices = np.arange(n_frames)
+			np.random.shuffle(indices)
+			series = series[indices,:,:]
+			#np.random.shuffle(series) # by default shuffles first axis
 		else:
 			if(np.random.random() > 0.5): # sequential order maintained
 				label = 1;
 			else: 	# two random frames are swapped
 				label = 2;
 				num_shuffle = 5;
-				for i in np.range(num_shuffle):
+				for i in np.arange(num_shuffle):
 					frame1 = np.random.randint(0,n_frames-1)
 					frame2 = np.random.randint(0,n_frames-1)
 					temp = series[frame1,:,:]
@@ -309,6 +309,7 @@ class UKBB_LAX_SelfSupervised(Dataset):
 			
 
 		# converting from gray to RGB
+		series = np.expand_dims(series,1) # (50,1,224,224)
 		series = np.concatenate((series,series,series),axis=1)
 		#print(series.shape) # (50,3,224,224)
 
