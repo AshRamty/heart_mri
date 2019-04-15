@@ -109,7 +109,7 @@ def load_model_snapshot(args,inputdir):
 	"""
 	Load 
 	"""
-	import ipdb; ipdb.set_trace();
+	#import ipdb; ipdb.set_trace();
 
 	# if frame encoder weights to be frozen for MR, finetuned over open close
 	if(args.requires_grad == False):
@@ -149,7 +149,7 @@ def train_model(args):
 		device = 'cpu'
 
 	model = load_model_snapshot(args,args.pretrained_model_path)
-	import pdb; pdb.set_trace()
+	#import pdb; pdb.set_trace()
 
 	dropout = 0.4
 	# Train end model
