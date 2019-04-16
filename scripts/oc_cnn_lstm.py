@@ -134,12 +134,12 @@ def train_model(args):
 
 	# evaluating label model
 	print('Trained Label Model Metrics:')
-	label_model.score((L["dev"], Y["dev"]), metric=['accuracy','precision', 'recall', 'f1'])
+	label_model.score((L["dev"], Y["dev"]), metric=['accuracy','precision', 'recall', 'f1','roc-auc'])
 
 	# comparison with majority vote of LFs
 	mv = MajorityLabelVoter(seed=123)
 	print('Majority Label Voter Metrics:')
-	mv.score((L["dev"], Y["dev"]), metric=['accuracy','precision', 'recall', 'f1'])
+	mv.score((L["dev"], Y["dev"]), metric=['accuracy','precision', 'recall', 'f1','roc-auc'])
 
 	Ytrain_p = label_model.predict_proba(L["train"])
 	#print(Ytrain_ps.shape) #(377*50,2)
@@ -230,7 +230,7 @@ def train_model(args):
 		)
 
 	# evaluate end model
-	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
+	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','roc-auc'])
 	#end_model.score((Xtest,Ytest), verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
 	
 
