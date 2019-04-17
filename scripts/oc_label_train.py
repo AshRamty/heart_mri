@@ -58,7 +58,7 @@ def read_labels(label_list):
 	n = L.shape[1]
 	if(len(L.shape) == 2): # true labels 
 		L = np.reshape(L,(m*n,))
-		L = L+1 # changing from 0-indexing to 1-indexing
+		L = 2 - L # changing from 0-indexing to 1-indexing - used to be L = L + 1
 	else:
 		L = csr_matrix(np.reshape(L,(m*n,L.shape[2])))
 

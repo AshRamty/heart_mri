@@ -111,7 +111,7 @@ class UKBB_LAX_Roll(Dataset):
 		#print(label.shape)
 		
 		# switching order to have minimal class = 1
-		label = 3 - label		
+		#label = 3 - label		
 
 		# finding patient id number
 		p_idx = idx // 50
@@ -226,7 +226,7 @@ class UKBB_LAX_MR(Dataset):
 		#print(series.shape) # (50,3,224,224)
 
 		label = self.labels.iloc[idx, 1]
-		label = 2-label # converting to 1-indexing and making minority class = 1
+		label = 2-label # converting to 1-indexing and making minority class = 1 - to change this
 		#print(label)
 
 		return (series, label)
