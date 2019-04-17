@@ -159,7 +159,7 @@ def train_model(args):
 
 	# Define input encoder
 	#cnn_encoder = FrameEncoderOC
-	cnn_encoder = FrameEncoderOC
+	cnn_encoder = FrameEncoderOCDense
 
 	if(torch.cuda.is_available()):
 		device = 'cuda'

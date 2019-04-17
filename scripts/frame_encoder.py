@@ -135,3 +135,68 @@ class FrameEncoderOC(Encoder):
 			return out
 		else :  # if 4D
 			return self.cnn.forward(x) # dim [1,1000]
+
+
+class FrameEncoderOCDense(Encoder):
+	
+	def __init__(self,encoded_size, **kwargs):
+		super().__init__(encoded_size)
+		#self.n_classes  = n_classes
+		self.use_cuda	= torch.cuda.is_available()
+		input_shape		= kwargs.get("input_shape", (3, 224, 224))
+		#layers			= kwargs.get("layers", [64, 32])
+		#dropout		= kwargs.get("dropout", 0.2)
+		pretrained		= kwargs.get("pretrained", True)
+		requires_grad	= kwargs.get("requires_grad", False)
+
+		#self.cnn           = densenet_40_12_bc(pretrained=pretrained, requires_grad=requires_grad)
+		#self.cnn = models.resnet34(pretrained=pretrained)
+		self.cnn = models.densenet121(pretrained = pretrained)
+		for param in self.cnn.parameters():
+			param.requires_grad = requires_grad
+		
+		#if(self.use_cuda):
+		#	self.cnn = models.resnet34(pretrained=pretrained).cuda()
+		#else:
+		#	self.cnn = models.resnet34(pretrained=pretrained) # try densenet121 
+
+		self.encoded_size = self.get_frm_output_size(input_shape) # 1000
+		#print('encode dim: ', self.encoded_size)
+
+
+	def get_frm_output_size(self, input_shape):
+		input_shape = list(input_shape)
+		input_shape.insert(0,1) # [1, 3, 224, 224]
+
+		dummy_batch_size = tuple(input_shape)
+		x = torch.autograd.Variable(torch.zeros(dummy_batch_size))		
+		#if(self.use_cuda):
+		#	x = x.cuda()
+
+		out = self.cnn.forward(x) 
+		#print(out.shape) # [1,1000]
+		frm_output_size = out.shape[1] # 1000 
+		
+		return frm_output_size 
+
+	def encode(self,x):
+		
+		x = x.float()
+		#if(self.use_cuda):
+		#	x = x.cuda()
+
+		if (len(x.shape) == 5): # if 5D
+			# reshape from 5D (batch,frames,3,img_row, img_col) -> 4D (batch*frames,3,img_row, img_col)
+			n_batch,n_frame,ch,row,col = x.shape
+			x = torch.reshape(x,(n_batch*n_frame,ch,row,col))
+
+			# forward pass
+			out = self.cnn.forward(x) # dim (batch*frames,1000)
+
+			# reshape from 4D (batch*frames,encode_dim) -> 5D (batch,frames,encode_dim)
+			encode_dim = out.shape[1]
+			out = torch.reshape(out,(n_batch,n_frame,encode_dim))
+			#print(out.shape) # [4,50,1000]
+			return out
+		else :  # if 4D
+			return self.cnn.forward(x) # dim [1,1000]
