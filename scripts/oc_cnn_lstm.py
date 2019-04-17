@@ -58,7 +58,7 @@ def read_labels(label_list):
 	n = L.shape[1]
 	if(len(L.shape) == 2): # true labels 
 		L = np.reshape(L,(m*n,))
-		L = 2 - L # changing from 0-indexing to 1-indexing - used to be L = L + 1
+		L = L+1 # changing from 0-indexing to 1-indexing
 	else:
 		L = csr_matrix(np.reshape(L,(m*n,L.shape[2])))
 
@@ -134,12 +134,12 @@ def train_model(args):
 
 	# evaluating label model
 	print('Trained Label Model Metrics:')
-	label_model.score((L["dev"], Y["dev"]), metric=['accuracy','precision', 'recall', 'f1','roc-auc'])
+	label_model.score((L["dev"], Y["dev"]), metric=['accuracy','precision', 'recall', 'f1'])
 
 	# comparison with majority vote of LFs
 	mv = MajorityLabelVoter(seed=123)
 	print('Majority Label Voter Metrics:')
-	mv.score((L["dev"], Y["dev"]), metric=['accuracy','precision', 'recall', 'f1','roc-auc'])
+	mv.score((L["dev"], Y["dev"]), metric=['accuracy','precision', 'recall', 'f1'])
 
 	Ytrain_p = label_model.predict_proba(L["train"])
 	#print(Ytrain_ps.shape) #(377*50,2)
@@ -230,7 +230,7 @@ def train_model(args):
 		)
 
 	# evaluate end model
-	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','roc-auc'])
+	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
 	#end_model.score((Xtest,Ytest), verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
 	
 

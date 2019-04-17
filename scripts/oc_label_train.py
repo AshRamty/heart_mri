@@ -152,12 +152,15 @@ def train_model(args):
 
 	# loading train model
 	Ytrain = np.load(args.train_labels)
-	#Ytrain = 2 - Ytrain	
-	import ipdb; ipdb.set_trace();
+	#Ytrain = 2 - Ytrain	# only for mv_400
+	Ytrain_p = np.zeros(len(Ytrain),2)
+	Ytrain_p[:,0] = Ytrain
+	Ytrain_p[:,1] = 1 - Ytrain
+	#import ipdb; ipdb.set_trace();
 
 	# End Model
 	# Create datasets and dataloaders
-	train, dev, test = load_dataset(args, Ytrain, Y["dev"], Y["test"])
+	train, dev, test = load_dataset(args, Ytrain_p, Y["dev"], Y["test"])
 	data_loader = get_data_loader(train, dev, test, args.batch_size, args.num_workers)
 	#print(len(data_loader["train"])) # 18850 / batch_size
 	#print(len(data_loader["dev"])) # 1500 / batch_size
