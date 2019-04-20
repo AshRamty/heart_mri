@@ -29,7 +29,7 @@ from torch.utils.data import Dataset, DataLoader
 from dataloader_4ch import UKBB_LAX_Roll
 from models.frame.densenet_av import densenet_40_12_bc
 from utils import *
-from frame_encoder import FrameEncoderBAV, FrameEncoderOC
+from frame_encoder import FrameEncoderBAV, FrameEncoderOC, FrameEncoderOCDense
 
 from metal.label_model import LabelModel
 from metal.label_model.baselines import MajorityLabelVoter

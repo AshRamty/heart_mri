@@ -151,12 +151,13 @@ def train_model(args):
 	'''
 
 	# loading train model
-	Ytrain = np.load(args.train_labels)
+	#Ytrain = np.load(args.train_labels)
 	#Ytrain = 2 - Ytrain	# only for mv_400
-	Ytrain_p = np.zeros((len(Ytrain),2))
-	Ytrain_p[:,1] = Ytrain
-	Ytrain_p[:,0] = 1 - Ytrain
+	#Ytrain_p = np.zeros((len(Ytrain),2))
+	#Ytrain_p[:,1] = Ytrain
+	#Ytrain_p[:,0] = 1 - Ytrain
 	#import ipdb; ipdb.set_trace();
+	Ytrain_p = np.load(args.train_labels)	
 
 	# End Model
 	# Create datasets and dataloaders
