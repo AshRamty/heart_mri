@@ -156,7 +156,7 @@ def train_model(args):
 	#Ytrain_p = np.zeros((len(Ytrain),2))
 	#Ytrain_p[:,1] = Ytrain
 	#Ytrain_p[:,0] = 1 - Ytrain
-	#import ipdb; ipdb.set_trace();
+	import ipdb; ipdb.set_trace();
 	Ytrain_p = np.load(args.train_labels)	
 
 	# End Model

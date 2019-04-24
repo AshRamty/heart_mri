@@ -58,7 +58,7 @@ def read_labels(label_list):
 	n = L.shape[1]
 	if(len(L.shape) == 2): # true labels 
 		L = np.reshape(L,(m*n,))
-		L = L+1 # changing from 0-indexing to 1-indexing
+	#	L = L+1 # changing from 0-indexing to 1-indexing
 	else:
 		L = csr_matrix(np.reshape(L,(m*n,L.shape[2])))
 
@@ -79,6 +79,8 @@ def load_labels(args):
 	Y["dev"] = read_labels(glob(args.dev + '/true_labels/*.npy'))
 	Y["test"] = read_labels(glob(args.test + '/true_labels/*.npy'))	
 
+	Y["dev"] = Y["dev"]+1 
+	Y["test"] = Y["test"]+1
 	return L,Y
 
 
@@ -130,7 +132,7 @@ def train_model(args):
 
 	# training label model
 	label_model = LabelModel(k=num_classes, seed=123)
-	label_model.train_model(L["train"], Y["dev"], n_epochs = 500, log_train_every = 50)
+	label_model.train_model(L["train"], Y["dev"], n_epochs = 2000, log_train_every = 100)
 
 	# evaluating label model
 	print('Trained Label Model Metrics:')
