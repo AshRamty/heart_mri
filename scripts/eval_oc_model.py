@@ -75,7 +75,7 @@ def load_labels(args):
 	Y = {}
 
 	#train_lf_list = glob(args.train + '/lf_labels/*.npy') 
-	L["train"] = read_labels(glob(args.train + '/lf_labels/*.npy'))
+	#L["train"] = read_labels(glob(args.train + '/lf_labels/*.npy'))
 	L["dev"] = read_labels(glob(args.dev + '/lf_labels/*.npy'))
 	L["test"] = read_labels(glob(args.test + '/lf_labels/*.npy'))
 
@@ -163,8 +163,8 @@ def eval_model(args):
 	model = load_model_snapshot(args,args.pretrained_model_path)
 
 	# evaluate end model
-	model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
-	#end_model.score((Xtest,Ytest), verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
+	model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','ndcg'])
+	#model.score(data_loader["test"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','ndcg'])
 	
 
 
@@ -175,7 +175,7 @@ if __name__ == "__main__":
 	# Parsing command line arguments
 	argparser = argparse.ArgumentParser(description="Loading LAX 4Ch data")
 
-	argparser.add_argument("--train", type=str, default=None, help="training set")
+	#argparser.add_argument("--train", type=str, default=None, help="training set")
 	argparser.add_argument("--dev", type=str, default=None, help="dev (validation) set")
 	argparser.add_argument("--test", type=str, default=None, help="test set")
 
