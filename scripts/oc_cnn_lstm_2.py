@@ -27,7 +27,7 @@ import torch.optim as optim
 from torch.autograd import Variable
 from torch.utils.data import Dataset, DataLoader
 
-from dataloader_4ch import UKBB_LAX_Roll
+from dataloader_4ch import UKBB_LAX_Roll_CV
 from models.frame.densenet_av import densenet_40_12_bc
 from utils import *
 from frame_encoder import FrameEncoderBAV, FrameEncoderOC
@@ -88,32 +88,39 @@ def load_labels(args):
 
 def cv_1_split(args,Ydev):
 	
-	data_list_dev = glob(args.dev+'/la_4ch/*.npy') 
-	Ydev = np.reshape(Ydev,[len(data_list_dev),50])   
+	data_list = glob(args.dev+'/la_4ch/*.npy') 
+	Y = np.reshape(Ydev,[len(data_list),50])   
+	indices = np.arange(len(data_list))
 
-	data_list = []
-	indices = np.arange(len(data_list_dev))
 	# splitting dev into train and validation
-	train_indices, dev_indices, Ytrain, Ydev = train_test_split(indices, Ydev, test_size=0.2, random_state=0) 
-
-	#data_list["train"] = data_list_dev[train_indices] 
-	#data_list["dev"] = data_list_dev[dev_indices]
-	data_list["train"] = [ data_list_dev[index] for index in train_indices ]
-	data_list["dev"] = [ data_list_dev[index] for index in dev_indices ]
+	train_indices, dev_indices, Ytrain, Ydev = train_test_split(indices, Y, test_size=0.2, random_state=0) 
+	
 	Ytrain = np.reshape(Ytrain,[Ytrain.shape[0]*Ytrain.shape[1]])
 	Ydev = np.reshape(Ydev,[Ydev.shape[0]*Ydev.shape[1]])
-
+	
+	data_list_train = []
+	data_list_dev = []
+	for index in train_indices:
+		(data_list_train).append(data_list[index])
+	
+	for index in dev_indices:
+		(data_list_dev).append(data_list[index])
+	
+	data_list = {}
+	data_list["train"] = data_list_train
+	data_list["dev"] = data_list_dev
+	data_list["test"] = glob(args.test + '/la_4ch/*.npy')
 	return data_list, Ytrain, Ydev
 
 
-def load_dataset(data_list,Y):
+def load_dataset(args,data_list,Y):
 	'''
 	Loading LAX 4ch data
 	'''
 	DataSet = UKBB_LAX_Roll_CV
-	train = DataSet(data_list["train"], Y["train"], seed=args.data_seed, mask = args.mask)
-	dev = DataSet(data_list["dev"], Y["dev"], seed=args.data_seed, mask = args.mask)
-	test = DataSet(data_list["test"], Y["test"], seed=args.data_seed, mask = args.mask)
+	train = DataSet(data_list["train"], Y["train"], seed=args.data_seed)
+	dev = DataSet(data_list["dev"], Y["dev"], seed=args.data_seed)
+	test = DataSet(data_list["test"], Y["test"], seed=args.data_seed)
 
 
 	return train, dev, test
@@ -150,7 +157,7 @@ def train_model(args):
 
 	# End Model
 	# Create datasets and dataloaders
-	train, dev, test = load_dataset(data_list, Y)
+	train, dev, test = load_dataset(args,data_list, Y)
 	data_loader = get_data_loader(train, dev, test, args.batch_size, args.num_workers)
 	#print(len(data_loader["train"])) # 18850 / batch_size
 	#print(len(data_loader["dev"])) # 1500 / batch_size
