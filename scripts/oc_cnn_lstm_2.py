@@ -89,9 +89,19 @@ def load_labels(args):
 def cv_1_split(args,Ydev)
 	
 	data_list_dev = glob(args.dev+'/la_4ch/*.npy') 
+	Ydev = np.reshape(Ydev,[len(data_list_dev),50])   
+
 	data_list = []
+	indices = np.arange(len(data_list_dev))
 	# splitting dev into train and validation
-	data_list["train"], data_list["dev"], Ytrain, Ydev = train_test_split(data_list_dev, Ydev, test_size=0.2, random_state=0) 
+	train_indices, dev_indices, Ytrain, Ydev = train_test_split(indices, Ydev, test_size=0.2, random_state=0) 
+
+	#data_list["train"] = data_list_dev[train_indices] 
+	#data_list["dev"] = data_list_dev[dev_indices]
+	data_list["train"] = [ data_list_dev[index] for index in train_indices ]
+	data_list["dev"] = [ data_list_dev[index] for index in dev_indices ]
+	Ytrain = np.reshape(Ytrain,[Ytrain.shape[0]*Ytrain.shape[1]])
+	Ydev = np.reshape(Ydev,[Ydev.shape[0]*Ydev.shape[1]])
 
 	return data_list, Ytrain, Ydev
 
