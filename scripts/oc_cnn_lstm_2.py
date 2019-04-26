@@ -86,7 +86,7 @@ def load_labels(args):
 	return L,Y
 
 
-def cv_1_split(args,Ydev)
+def cv_1_split(args,Ydev):
 	
 	data_list_dev = glob(args.dev+'/la_4ch/*.npy') 
 	Ydev = np.reshape(Ydev,[len(data_list_dev),50])   
