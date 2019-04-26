@@ -62,7 +62,7 @@ def read_labels(label_list):
 	n = L.shape[1]
 	if(len(L.shape) == 2): # true labels 
 		L = np.reshape(L,(m*n,))
-		L = L+1 # changing from 0-indexing to 1-indexing
+		L = 2 - L # changing from 0-indexing to 1-indexing
 	else:
 		L = csr_matrix(np.reshape(L,(m*n,L.shape[2])))
 
@@ -120,16 +120,21 @@ def load_model_snapshot(args,inputdir):
 	"""
 	Load 
 	"""
+	map_location = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
 	init_kwargs = pickle.load(open(f'{inputdir}/init_kwargs.pickle', "rb"))
 	init_kwargs["seed"] = args.seed
+	init_kwargs["device"] = map_location
+	#init_kwargs["input_batchnorm"] = False
 
 	model = EndModel(**init_kwargs)
-	map_location = 'gpu' if torch.cuda.is_available() else 'cpu'
-	model_state = torch.load(open(f"{inputdir}/best_model.pth",'rb'))
-	#model_state = torch.load(open(f"{inputdir}/best_model.pth",'rb'), map_location=map_location)
+	#import ipdb; ipdb.set_trace()	
+
+	#model_state = torch.load(open(f"{inputdir}/best_model.pth",'rb'))
+	model_state = torch.load(open(f"{inputdir}/best_model.pth",'rb'), map_location=map_location)
 	
-	model.load_state_dict(model_state["model"])
+	model.load_state_dict(model_state["model"]) #.to(map_location)
+	model.to(map_location)
 	#model.optimizer.load_state_dict(model_state["optimizer"])
 	#model.lr_scheduler.load_state_dict(model_state["lr_scheduler"])
 
@@ -162,9 +167,11 @@ def eval_model(args):
 	# load model 
 	model = load_model_snapshot(args,args.pretrained_model_path)
 
+	import ipdb; ipdb.set_trace()
+
 	# evaluate end model
-	model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','ndcg'])
-	#model.score(data_loader["test"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','ndcg'])
+	model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','roc-auc','ndcg'])
+	#model.score(data_loader["test"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','roc-auc','ndcg'])
 	
 
 
