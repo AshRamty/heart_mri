@@ -148,6 +148,86 @@ class UKBB_LAX_Roll(Dataset):
 		return (series, label)
 
 
+class UKBB_LAX_Roll_CV(Dataset):
+	"""
+	UK Biobank cardiac MRI dataset
+	LAX series 
+	expands the data from using patient indexing to frame indexing
+	(num_eg, num_frames, img) --> (num_eg*num_frames, num_frames, img)
+	labels: (num_eg, num_frames) --> (num_eg*num_frames)
+	Data is rolled such that the data starts with the frame_num corresponding to label
+
+
+	"""
+	def __init__(self,data_list,labels, seed=123):
+		self.list = data_list
+		self.labels = labels
+		np.random.seed(seed)
+		#else:
+		#	self.mode = 'value'
+
+		#import ipdb; ipdb.set_trace()
+
+	#def summary(self):
+		"""
+		Generate message summarizing data (e.g., counts, class balance)
+		Assumes hard labels
+		:return:
+		"""
+		#return "Instances: {}".format(len(self))
+
+	#def get_labels(self):
+		#return [(str(self.labels.iloc[i, 0]), data[1]) for i, data in enumerate(self)]
+
+	def __len__(self):
+		return len(self.labels)
+
+	def __getitem__(self, idx):
+		all_labels = self.labels
+		if(len(all_labels.shape) == 2):
+			label = self.labels[idx,:]
+		else:
+			label = self.labels[idx]
+		#print(label.shape)
+		
+		# switching order to have minimal class = 1
+		label = 3 - label		
+
+		# finding patient id number
+		p_idx = idx // 50
+		frame_num = idx % 50 
+		
+		filename = self.list[p_idx]
+		series = np.load(filename)
+		series = series.astype(float) # type float64		
+
+		# roll series based on frame_num
+		# to verify this.
+		series = np.roll(series,-frame_num,axis=0) 
+		#print(series.shape) # (50,108,108)
+
+		# padding to 128 x 128 - to remove later by changing the cropping
+		#series = np.pad(series,((0,0),(10,10),(10,10)),'minimum')
+		#print(series.shape) # (50,128,128)
+		n_frames, m, n = series.shape
+		if(m<224):
+			pad_size = (( 225 - m ) // 2 ) 
+			series = np.pad(series,((0,0),(pad_size,pad_size),(0,0)),'minimum')
+
+		if(n<224):
+			pad_size = (( 225 - n ) // 2 ) 
+			series = np.pad(series,((0,0),(0,0),(pad_size,pad_size)),'minimum')		
+
+		#print(series.shape) # (50,224,224)
+		series = np.expand_dims(series,1) # (50,1,224,224)
+
+		# converting from gray to RGB
+		series = np.concatenate((series,series,series),axis=1)
+		#print(series.shape) # (50,3,224,224)
+
+		return (series, label)
+
+
 class UKBB_LAX_MR(Dataset):
 	"""
 	UK Biobank cardiac MRI dataset
