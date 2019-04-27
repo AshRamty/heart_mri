@@ -167,9 +167,10 @@ def eval_model(args):
 	# load model 
 	model = load_model_snapshot(args,args.pretrained_model_path)
 
-	import ipdb; ipdb.set_trace()
+	#import ipdb; ipdb.set_trace()
 
 	# evaluate end model
+	model.eval()
 	model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','roc-auc','ndcg'])
 	#model.score(data_loader["test"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','roc-auc','ndcg'])
 	
