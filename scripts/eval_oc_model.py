@@ -171,7 +171,10 @@ def eval_model(args):
 
 	# evaluate end model
 	model.eval()
+	print('Dev Set Performance:')
 	model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','roc-auc','ndcg'])
+	
+	#print('\n Test Set Performance:')
 	#model.score(data_loader["test"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','roc-auc','ndcg'])
 	
 
