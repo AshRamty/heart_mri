@@ -205,7 +205,7 @@ if __name__ == "__main__":
 	argparser.add_argument("-H", "--host_device", type=str, default="gpu", help="Host device (GPU|CPU)")
 	argparser.add_argument("--data_seed", type=int, default=123, help="random sample seed")
 
-	argparser.add_argument("-batchnorm", type=bool, default=False, help="indicator for batchnorm")
+	argparser.add_argument("--batchnorm", type=bool, default=False, help="indicator for batchnorm")
 	argparser.add_argument("--lr","--learning-rate",default=0.001,type=float,help="initial learning rate")
 	argparser.add_argument("--momentum", default=0.9, type=float, help="momentum")
 	argparser.add_argument("--weight-decay","--wd",default=1e-4,type=float,help="weight decay (default: 1e-4)")
