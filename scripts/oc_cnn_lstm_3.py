@@ -86,44 +86,21 @@ def load_labels(args):
 	return L,Y
 
 
-def cv_1_split(args,Ydev):
-	
-	data_list_dev = glob(args.dev+'/la_4ch/*.npy') 
-	Ydev = np.reshape(Ydev,[len(data_list_dev),50])   
-
-	data_list = []
-	indices = np.arange(len(data_list_dev))
-	# splitting dev into train and validation
-	train_indices, dev_indices, Ytrain, Ydev = train_test_split(indices, Ydev, test_size=0.2, random_state=0) 
-
-	#data_list["train"] = data_list_dev[train_indices] 
-	#data_list["dev"] = data_list_dev[dev_indices]
-	data_list["train"] = [ data_list_dev[index] for index in train_indices ]
-	data_list["dev"] = [ data_list_dev[index] for index in dev_indices ]
-	Ytrain = np.reshape(Ytrain,[Ytrain.shape[0]*Ytrain.shape[1]])
-	Ydev = np.reshape(Ydev,[Ydev.shape[0]*Ydev.shape[1]])
-
-	return data_list, Ytrain, Ydev
-
-
 def load_dataset(data_list,Y):
 	'''
 	Loading LAX 4ch data
 	'''
 	DataSet = UKBB_LAX_Roll_CV
-	train = DataSet(data_list["train"], Y["train"], seed=args.data_seed, mask = args.mask)
 	dev = DataSet(data_list["dev"], Y["dev"], seed=args.data_seed, mask = args.mask)
 	test = DataSet(data_list["test"], Y["test"], seed=args.data_seed, mask = args.mask)
 
-
-	return train, dev, test
+	return dev, test
 
 
 # dataloader 
-def get_data_loader(train, dev, test=None, batch_size=4, num_workers=1):
+def get_data_loader(dev, test=None, batch_size=4, num_workers=1):
 	
 	data_loader = {}
-	data_loader["train"] = DataLoader(train, batch_size=batch_size, shuffle=True, num_workers=num_workers)
 	data_loader["dev"]   = DataLoader(dev, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 	data_loader["test"]  = None if not test else DataLoader(test, batch_size=batch_size,shuffle=False, num_workers=num_workers)
 
@@ -142,16 +119,10 @@ def train_model(args):
 
 	L,Y = load_labels(args) 
 
-	# creating 1 split
-	data_list, Ytrain, Ydev = cv_1_split(args,Y["dev"])
-	Y["train"] = Ytrain
-	Y["dev"] = Ydev
-
 	# End Model
 	# Create datasets and dataloaders
-	train, dev, test = load_dataset(data_list, Y)
-	data_loader = get_data_loader(train, dev, test, args.batch_size, args.num_workers)
-	#print(len(data_loader["train"])) # 18850 / batch_size
+	dev, test = load_dataset(data_list, Y)
+	data_loader = get_data_loader(dev, test, args.batch_size, args.num_workers)
 	#print(len(data_loader["dev"])) # 1500 / batch_size
 	#print(len(data_loader["test"])) # 1000 / batch_size 
 	#import ipdb; ipdb.set_trace()
@@ -196,8 +167,8 @@ def train_model(args):
 	dropout = 0.4
 	# Train end model
 	end_model.train_model(
-		train_data=data_loader["train"],
-		valid_data=data_loader["dev"],
+		train_data=data_loader["dev"],
+		valid_data=data_loader["test"],
 		l2=args.weight_decay,
 		lr=args.lr,
 		n_epochs=args.n_epochs,
@@ -213,7 +184,7 @@ def train_model(args):
 		)
 
 	# evaluate end model
-	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','roc-auc','ndcg'])
+	end_model.score(data_loader["test"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','roc-auc','ndcg'])
 	#end_model.score((Xtest,Ytest), verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
 
 
@@ -224,7 +195,6 @@ if __name__ == "__main__":
 	# Parsing command line arguments
 	argparser = argparse.ArgumentParser(description="Loading LAX 4Ch data")
 
-	#argparser.add_argument("--train", type=str, default=None, help="training set")
 	argparser.add_argument("--dev", type=str, default=None, help="dev (validation) set")
 	argparser.add_argument("--test", type=str, default=None, help="test set")
 
