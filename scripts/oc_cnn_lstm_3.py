@@ -166,7 +166,6 @@ def train_model(args):
 	with open(args.checkpoint_dir+'/init_kwargs.pickle', "wb") as f:
 		pickle.dump(init_kwargs,f,protocol=pickle.HIGHEST_PROTOCOL)
 
-	dropout = 0.4
 	# Train end model
 	end_model.train_model(
 		train_data=data_loader["dev"],
@@ -179,8 +178,7 @@ def train_model(args):
 		progress_bar = True,
 		loss_weights = [0.55,0.45],
 		batchnorm = args.batchnorm,
-		input_dropout = 0.1,
-		middle_dropout = dropout,
+		middle_dropout = args.dropout,
 		checkpoint_dir = args.checkpoint_dir,
 		#validation_metric='f1',
 		)
@@ -207,6 +205,7 @@ if __name__ == "__main__":
 	argparser.add_argument("-H", "--host_device", type=str, default="gpu", help="Host device (GPU|CPU)")
 	argparser.add_argument("--data_seed", type=int, default=123, help="random sample seed")
 
+	argparser.add_argument("--dropout", type=float, default=0.1, help="dropout")
 	argparser.add_argument("--batchnorm", type=bool, default=False, help="indicator for batchnorm")
 	argparser.add_argument("--lr","--learning-rate",default=0.001,type=float,help="initial learning rate")
 	argparser.add_argument("--momentum", default=0.9, type=float, help="momentum")
