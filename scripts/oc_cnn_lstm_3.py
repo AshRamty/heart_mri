@@ -118,6 +118,8 @@ def train_model(args):
 	encode_dim = 1000 # using get_frm_output_size()
 
 	L,Y = load_labels(args) 
+	data_list["dev"] = glob(args.dev + '/la_4ch/*.npy')
+	data_list["test"] = glob(args.test + '/la_4ch/*.npy')
 
 	# End Model
 	# Create datasets and dataloaders
