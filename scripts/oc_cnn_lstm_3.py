@@ -18,6 +18,7 @@ import time
 import logging
 import warnings
 import pandas
+import pickle
 from glob import glob
 from scipy.sparse import csr_matrix
 import torchvision
@@ -27,10 +28,10 @@ import torch.optim as optim
 from torch.autograd import Variable
 from torch.utils.data import Dataset, DataLoader
 
-from dataloader_4ch import UKBB_LAX_Roll
+from dataloader_4ch import UKBB_LAX_Roll_CV
 from models.frame.densenet_av import densenet_40_12_bc
 from utils import *
-from frame_encoder import FrameEncoderBAV, FrameEncoderOC
+from frame_encoder import FrameEncoderOC
 
 from metal.label_model import LabelModel
 from metal.label_model.baselines import MajorityLabelVoter
@@ -91,8 +92,8 @@ def load_dataset(data_list,Y):
 	Loading LAX 4ch data
 	'''
 	DataSet = UKBB_LAX_Roll_CV
-	dev = DataSet(data_list["dev"], Y["dev"], seed=args.data_seed, mask = args.mask)
-	test = DataSet(data_list["test"], Y["test"], seed=args.data_seed, mask = args.mask)
+	dev = DataSet(data_list["dev"], Y["dev"], seed=args.data_seed)
+	test = DataSet(data_list["test"], Y["test"], seed=args.data_seed)
 
 	return dev, test
 
@@ -118,6 +119,7 @@ def train_model(args):
 	encode_dim = 1000 # using get_frm_output_size()
 
 	L,Y = load_labels(args) 
+	data_list = {}
 	data_list["dev"] = glob(args.dev + '/la_4ch/*.npy')
 	data_list["test"] = glob(args.test + '/la_4ch/*.npy')
 
@@ -143,9 +145,8 @@ def train_model(args):
 		hidden_size,
 		bidirectional=False,
 		verbose=False,
-		lstm_reduction=args.lstm_reduction,
-		encoder_class=cnn_encoder,
-		encoder_kwargs = {"requires_grad":args.requires_grad}
+		lstm_reduction="attention",
+		encoder_class=cnn_encoder
 		)
 
 	init_kwargs = {

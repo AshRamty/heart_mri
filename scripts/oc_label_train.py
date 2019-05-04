@@ -156,7 +156,6 @@ def train_model(args):
 	#Ytrain_p = np.zeros((len(Ytrain),2))
 	#Ytrain_p[:,1] = Ytrain
 	#Ytrain_p[:,0] = 1 - Ytrain
-	import ipdb; ipdb.set_trace();
 	Ytrain_p = np.load(args.train_labels)	
 
 	# End Model
@@ -166,17 +165,14 @@ def train_model(args):
 	#print(len(data_loader["train"])) # 18850 / batch_size
 	#print(len(data_loader["dev"])) # 1500 / batch_size
 	#print(len(data_loader["test"])) # 1000 / batch_size 
-	#import ipdb; ipdb.set_trace()
 
 	# Define input encoder
-	#cnn_encoder = FrameEncoderOC
 	cnn_encoder = FrameEncoderOC
 
 	if(torch.cuda.is_available()):
 		device = 'cuda'
 	else:
 		device = 'cpu'
-	#import ipdb; ipdb.set_trace()
 
 	# Define LSTM module
 	lstm_module = LSTMModule(
@@ -241,8 +237,11 @@ def train_model(args):
 		)
 
 	# evaluate end model
+	print('Dev Set Performance')
 	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','roc-auc','ndcg'])
-	#end_model.score((Xtest,Ytest), verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
+	
+	print('Test Set Performance')
+	end_model.score( data_loader["test"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','roc-auc','ndcg'])
 	
 
 
