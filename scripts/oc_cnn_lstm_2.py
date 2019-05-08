@@ -201,11 +201,13 @@ def train_model(args):
 	"input_batchnorm": True,
 	"use_cuda":torch.cuda.is_available(),
 	'checkpoint_dir':args.checkpoint_dir,
+	'checkpoint': True,
+	'checkpoint_best':False,
 	'seed':args.seed,
 	'device':device}
 	
 	search_space = {
-	'n_epochs':[20],
+	'n_epochs':[5,10,15,20],
 	'batchnorm':[True],
 	'dropout': [0.1,0.25,0.4],
 	'lr':{'range': [1e-3, 1e-2], 'scale': 'log'}, 
