@@ -1,7 +1,6 @@
 '''
 Classifies mitral valve open / close using CNN LSTM in Metal
 Baseline model
-Uses only dev data and splits to do 1-fold cross validation
 no hyperparameter tuning
 
 '''
@@ -180,6 +179,8 @@ def train_model(args):
 		loss_weights = [0.55,0.45],
 		batchnorm = args.batchnorm,
 		middle_dropout = args.dropout,
+		checkpoint_every = args.n_epochs,
+		checkpoint_best = False,
 		checkpoint_dir = args.checkpoint_dir,
 		#validation_metric='f1',
 		)
