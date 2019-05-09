@@ -179,16 +179,26 @@ def train_model(args):
 		loss_weights = [0.55,0.45],
 		batchnorm = args.batchnorm,
 		middle_dropout = args.dropout,
-		checkpoint_every = args.n_epochs,
-		checkpoint_best = False,
-		checkpoint_dir = args.checkpoint_dir,
+		checkpoint = False,
+		#checkpoint_every = args.n_epochs,
+		#checkpoint_best = False,
+		#checkpoint_dir = args.checkpoint_dir,
 		#validation_metric='f1',
 		)
 
 	# evaluate end model
-	end_model.score(data_loader["test"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','roc-auc','ndcg'])
+	end_model.score(data_loader["test"], verbose=True,metric=['accuracy','precision', 'recall', 'f1','roc-auc','ndcg'])
 	#end_model.score((Xtest,Ytest), verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
-
+	
+	# saving model 
+	state = {
+            "model": end_model.state_dict(),
+           # "optimizer": optimizer.state_dict(),
+           # "lr_scheduler": lr_scheduler.state_dict() if lr_scheduler else None,
+            "score": end_model.score(data_loader["test"],verbose=False,metric=['accuracy','precision', 'recall', 'f1','roc-auc','ndcg'])
+        }
+	checkpoint_path = f"{args.checkpoint_dir}/best_model.pth"
+	torch.save(state, checkpoint_path)
 
 if __name__ == "__main__":
 	# Checking to see if cuda is available for GPU use
