@@ -204,14 +204,14 @@ def train_model(args):
 	'checkpoint': False,
 	'checkpoint_best':False,
 	#'log_valid_metrics':["accuracy"],
-	#'checkpoint_every':1,
+	'checkpoint_every':-1,
 	'seed':args.seed,
 	'device':device,
 	#'task_metrics':["accuracy"]
 	}
 	
 	search_space = {
-	'n_epochs':[1,5,10,15,20],
+	'n_epochs':[1],
 	'batchnorm':[True],
 	'dropout': [0.1,0.25,0.4],
 	'lr':{'range': [1e-3, 1e-2], 'scale': 'log'}, 
@@ -224,7 +224,7 @@ def train_model(args):
 	"run_name": 'cnn_lstm_oc'
 	}
 
-	max_search = 15
+	max_search = 2
 	tuner_config = {"max_search": max_search }
 
 	validation_metric = 'accuracy'

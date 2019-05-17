@@ -195,7 +195,7 @@ def train_model(args):
 	
 	log_config = {
 	"log_dir": "./run_logs", 
-	"run_name": 'cnn_lstm_oc'
+	"run_name": args.checkpoint_dir
 	}
 
 	max_search = 5
