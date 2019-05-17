@@ -153,16 +153,6 @@ def train_model(args):
 		encoder_kwargs = {"requires_grad":args.requires_grad}
 		)
 
-	# Define LSTM module
-	lstm_module = LSTMModule(
-		encode_dim,
-		hidden_size,
-		bidirectional=False,
-		verbose=False,
-		lstm_reduction="attention",
-		encoder_class=cnn_encoder,
-		)
-
 	train_args = [data_loader["train"]]
 
 	train_kwargs = {
