@@ -36,7 +36,9 @@ from metal.label_model.baselines import MajorityLabelVoter
 from metal.end_model import EndModel
 from metal.contrib.modules import Encoder, LSTMModule
 from metal.analysis import lf_summary, confusion_matrix
-
+from metal.tuners.random_tuner import RandomSearchTuner
+from metal.logging import LogWriter
+from metal.logging.tensorboard import TensorBoardWriter
 from sampler import ImbalancedDatasetSampler
 
 logger = logging.getLogger(__name__)
@@ -184,8 +186,8 @@ def train_model(args):
 	}	
 	
 	log_config = {
-	"log_dir": "./run_logs", 
-	"run_name": args.checkpoint_dir
+	"log_dir": args.checkpoint_dir,
+	"run_name": 'cnn_lstm_oc'
 	}
 
 	max_search = 5
@@ -194,11 +196,12 @@ def train_model(args):
 	validation_metric = 'accuracy'
 
 	# Set up logger and searcher
-	tuner = RandomSearchTuner(EndModel, 
+	tuner = RandomSearchTuner(
+	EndModel, 
 	**log_config,
 	log_writer_class=TensorBoardWriter,
 	validation_metric=validation_metric,
-	seed=1701)
+	seed=1701 )
 	
 	disc_model = tuner.search(
 	search_space,
@@ -214,52 +217,6 @@ def train_model(args):
 	# evaluate end model
 	disc_model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
 	#end_model.score((Xtest,Ytest), verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
-
-	'''
-	init_kwargs = {
-	"layer_out_dims":[hidden_size, num_classes],
-	"input_module": lstm_module, 
-	"optimizer": "adam",
-	"verbose": False,
-	"input_batchnorm": False,
-	"use_cuda":cuda,
-	'seed':args.seed,
-	'device':device}
-
-	end_model = EndModel(**init_kwargs)
-	
-	if not os.path.exists(args.checkpoint_dir):
-		os.mkdir(args.checkpoint_dir)
-	
-	with open(args.checkpoint_dir+'/init_kwargs.pickle', "wb") as f:
-		pickle.dump(init_kwargs,f,protocol=pickle.HIGHEST_PROTOCOL)
-
-	dropout = 0.4
-	# Train end model
-	end_model.train_model(
-		train_data=data_loader["train"],
-		valid_data=data_loader["dev"],
-		l2=args.weight_decay,
-		lr=args.lr,
-		n_epochs=args.n_epochs,
-		log_train_every=1,
-		verbose=True,
-		progress_bar = True,
-		loss_weights = [0.55,0.45],
-		batchnorm = False,
-		input_dropout = 0.1,
-		middle_dropout = dropout,
-		checkpoint_dir = args.checkpoint_dir,
-		#validation_metric='f1',
-		)
-
-	# evaluate end model
-	print('Dev Set Performance')
-	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','roc-auc','ndcg'])
-	
-	print('Test Set Performance')
-	end_model.score( data_loader["test"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','roc-auc','ndcg'])
-	'''
 
 
 if __name__ == "__main__":

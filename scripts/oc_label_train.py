@@ -229,7 +229,7 @@ def train_model(args):
 		verbose=True,
 		progress_bar = True,
 		loss_weights = [0.55,0.45],
-		batchnorm = False,
+		batchnorm = True,
 		input_dropout = 0.1,
 		middle_dropout = dropout,
 		checkpoint_dir = args.checkpoint_dir,
