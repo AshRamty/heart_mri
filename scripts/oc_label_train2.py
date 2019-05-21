@@ -215,8 +215,10 @@ def train_model(args):
 	)
 
 	# evaluate end model
+	print('Dev Set Performance')
 	disc_model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
-	#end_model.score((Xtest,Ytest), verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
+	print('Test Set Performance')
+	disc_model.score(data_loader["test"], verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
 
 
 if __name__ == "__main__":
