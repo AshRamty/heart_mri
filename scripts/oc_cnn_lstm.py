@@ -89,13 +89,13 @@ def load_dataset(args,Ytrain,Ydev,Ytest):
 	Loading LAX 4ch data
 	'''
 	DataSet = UKBB_LAX_Roll
-	train = DataSet(args.train, Ytrain, seed=args.data_seed, mask = args.mask)
+	train = DataSet(args.train, Ytrain, seed=args.data_seed, mask = args.mask, preprocess = args.preprocess)
 	#dev = DataSet(args.dev, np.expand_dims(Ydev,1), seed=args.data_seed)
-	dev = DataSet(args.dev, Ydev, seed=args.data_seed, mask = args.mask)
+	dev = DataSet(args.dev, Ydev, seed=args.data_seed, mask = args.mask, preprocess = args.preprocess)
 
 	if args.test:
 		#test = DataSet(args.test, np.expand_dims(Ytest,1), seed=args.data_seed)
-		test = DataSet(args.test, Ytest, seed=args.data_seed, mask = args.mask)
+		test = DataSet(args.test, Ytest, seed=args.data_seed, mask = args.mask, preprocess = args.preprocess)
 	else:
 		test = None
 
@@ -266,6 +266,7 @@ if __name__ == "__main__":
 	argparser.add_argument("--checkpoint_dir", type=str, default="oc_checkpoints", help="dir to save checkpoints")
 
 	argparser.add_argument("--requires_grad", type=bool, default=False, help="Selects whether to freeze or finetune frame encoder")
+	argparser.add_argument("--preprocess", type=bool, default=True, help="Selects whether to apply preprocessing (histogram equalization) to data")
 
 	args = argparser.parse_args()
 

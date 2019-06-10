@@ -46,10 +46,10 @@ def load_dataset(args):
 	Loading LAX 4ch data
 	'''
 	DataSet = UKBB_LAX_MR
-	train = DataSet(args.train, args.mask, seed=args.data_seed)
-	dev = DataSet(args.dev, args.mask, seed=args.data_seed)
+	train = DataSet(args.train, args.mask, seed=args.data_seed, preprocess = args.preprocess)
+	dev = DataSet(args.dev, args.mask, seed=args.data_seed, preprocess = args.preprocess)
 	if args.test:
-		test = DataSet(args.test, args.mask, seed=args.data_seed)
+		test = DataSet(args.test, args.mask, seed=args.data_seed, preprocess = args.preprocess)
 	else:
 		test = None
 
@@ -211,6 +211,7 @@ if __name__ == "__main__":
 	argparser.add_argument("--pretrained_model_path", type=str, default="oc_checkpoints_pw", help="dir of the best pretrained model")
 
 	argparser.add_argument("--requires_grad", type=bool, default=False, help="Selects whether to freeze or finetune frame encoder")
+	argparser.add_argument("--preprocess", type=bool, default=True, help="Selects whether to apply preprocessing (histogram equalization) to data")
 
 	args = argparser.parse_args()
 
