@@ -6,6 +6,7 @@ import logging
 from glob import glob
 import numpy as np
 import pandas as pd
+import cv2
 from skimage.color import grey2rgb
 from torch.utils.data import Dataset, DataLoader
 
@@ -74,9 +75,10 @@ class UKBB_LAX_Roll(Dataset):
 
 
 	"""
-	def __init__(self,root_dir,labels, seed=123, mask = False):
+	def __init__(self,root_dir,labels, seed=123, mask = False, preprocess = True):
 		self.root_dir = root_dir
 		self.labels = labels
+		self.preprocess = preprocess
 		if(mask):
 			self.list = glob(root_dir+'/la_4ch_masked/*.npy') 
 		else:
@@ -119,6 +121,17 @@ class UKBB_LAX_Roll(Dataset):
 		
 		filename = self.list[p_idx]
 		series = np.load(filename)
+		
+		if(self.preprocess):
+			series = series.astype(uint8)
+			# min-max normalization ( to apply z -normalization? )
+			for frame_num in range(series.shape[0]):
+				series[frame_num,:,:] = cv2.normalize(series[frame_num,:,:], None, 0, 255, cv2.NORM_MINMAX)
+			# histogram equalization
+			clahe = cv2.createCLAHE(clipLimit=0.02)
+			for frame_num in range(series.shape[0]):
+				series[frame_num,:,:] = clahe.apply(series[frame_num,:,:])
+
 		series = series.astype(float) # type float64		
 
 		# roll series based on frame_num
