@@ -123,11 +123,11 @@ class UKBB_LAX_Roll(Dataset):
 		series = np.load(filename)
 		
 		if(self.preprocess):
-			series = series.astype(uint8)
 			# min-max normalization ( to apply z -normalization? )
 			for frame_num in range(series.shape[0]):
 				series[frame_num,:,:] = cv2.normalize(series[frame_num,:,:], None, 0, 255, cv2.NORM_MINMAX)
 			# histogram equalization
+			series = np.uint8(series)
 			clahe = cv2.createCLAHE(clipLimit=0.02)
 			for frame_num in range(series.shape[0]):
 				series[frame_num,:,:] = clahe.apply(series[frame_num,:,:])
