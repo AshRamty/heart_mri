@@ -120,17 +120,19 @@ class UKBB_LAX_Roll(Dataset):
 		frame_num = idx % 50 
 		
 		filename = self.list[p_idx]
-		series = np.load(filename)
-		
+		temp1 = np.load(filename)
+		temp2 = np.zeros(temp1.shape)
+		series = np.zeros(temp1.shape)
+
 		if(self.preprocess):
 			# min-max normalization ( to apply z -normalization? )
 			for frame_num in range(series.shape[0]):
-				series[frame_num,:,:] = cv2.normalize(series[frame_num,:,:], None, 0, 255, cv2.NORM_MINMAX)
+				temp2[frame_num,:,:] = cv2.normalize(temp1[frame_num,:,:], None, 0, 255, cv2.NORM_MINMAX)
 			# histogram equalization
-			series = np.uint8(series)
+			temp2 = np.uint8(temp2)
 			clahe = cv2.createCLAHE(clipLimit=0.02)
 			for frame_num in range(series.shape[0]):
-				series[frame_num,:,:] = clahe.apply(series[frame_num,:,:])
+				series[frame_num,:,:] = clahe.apply(temp2[frame_num,:,:])
 
 		series = series.astype(float) # type float64		
 
@@ -301,6 +303,7 @@ class UKBB_LAX_MR(Dataset):
 
 				
 		#print(series.shape) # (50,208,x)
+		'''
 		if(self.preprocess):
 			# min-max normalization ( to apply z -normalization? )
 			for frame_num in range(series.shape[0]):
@@ -310,7 +313,7 @@ class UKBB_LAX_MR(Dataset):
 			clahe = cv2.createCLAHE(clipLimit=0.02)
 			for frame_num in range(series.shape[0]):
 				series[frame_num,:,:] = clahe.apply(series[frame_num,:,:])
-
+		'''
 		series = series.astype(float) # type float64		
 
 		# padding to 224 x 224
