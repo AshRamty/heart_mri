@@ -248,14 +248,14 @@ class UKBB_LAX_MR(Dataset):
 	A single example is a patient with 50 frames and 1 label
 
 	"""
-	def __init__(self, root_dir, mask = False, seed=4321):
+	def __init__(self, root_dir, mask = False, seed=4321, preprocess = True):
 		# either load from CSV or just use the provided pandas dataframe
 		
 		self.root_dir = root_dir
 		self.list = glob(root_dir+'/la_4ch/*.npy') 
 		np.random.seed(seed)
 		#self.series = series
-		#self.preprocess = preprocess
+		self.preprocess = preprocess
 		#self.augment = augmentation
 		#self.postprocess = postprocess
 		csv_data = "{}/labels.csv".format(root_dir)
@@ -301,6 +301,17 @@ class UKBB_LAX_MR(Dataset):
 
 				
 		#print(series.shape) # (50,208,x)
+		if(self.preprocess):
+			# min-max normalization ( to apply z -normalization? )
+			for frame_num in range(series.shape[0]):
+				series[frame_num,:,:] = cv2.normalize(series[frame_num,:,:], None, 0, 255, cv2.NORM_MINMAX)
+			# histogram equalization
+			series = np.uint8(series)
+			clahe = cv2.createCLAHE(clipLimit=0.02)
+			for frame_num in range(series.shape[0]):
+				series[frame_num,:,:] = clahe.apply(series[frame_num,:,:])
+
+		series = series.astype(float) # type float64		
 
 		# padding to 224 x 224
 		n_frames, m, n = series.shape
@@ -315,7 +326,6 @@ class UKBB_LAX_MR(Dataset):
 		series = np.expand_dims(series,1)
 		# converting from gray to RGB
 		series = np.concatenate((series,series,series),axis=1)
-		series = series.astype(float)
 		#print(series.shape) # (50,3,224,224)
 
 		label = self.labels.iloc[idx, 1]
