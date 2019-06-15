@@ -31,18 +31,6 @@ class UKBB_LAX_Sequence(Dataset):
 		self.list = glob(root_dir+'/*.npy') 
 		np.random.seed(seed)
 
-
-	#def summary(self):
-		"""
-		Generate message summarizing data (e.g., counts, class balance)
-		Assumes hard labels
-		:return:
-		"""
-		#return "Instances: {}".format(len(self))
-
-	#def get_labels(self):
-		#return [(str(self.labels.iloc[i, 0]), data[1]) for i, data in enumerate(self)]
-
 	def __len__(self):
 		#return len(self.labels)
 		return len(self.list)
@@ -85,21 +73,6 @@ class UKBB_LAX_Roll(Dataset):
 			self.list = glob(root_dir+'/la_4ch/*.npy') 
 
 		np.random.seed(seed)
-		#else:
-		#	self.mode = 'value'
-
-		#import ipdb; ipdb.set_trace()
-
-	#def summary(self):
-		"""
-		Generate message summarizing data (e.g., counts, class balance)
-		Assumes hard labels
-		:return:
-		"""
-		#return "Instances: {}".format(len(self))
-
-	#def get_labels(self):
-		#return [(str(self.labels.iloc[i, 0]), data[1]) for i, data in enumerate(self)]
 
 	def __len__(self):
 		return len(self.labels)
@@ -181,21 +154,6 @@ class UKBB_LAX_Roll_CV(Dataset):
 		self.list = data_list
 		self.labels = labels
 		np.random.seed(seed)
-		#else:
-		#	self.mode = 'value'
-
-		#import ipdb; ipdb.set_trace()
-
-	#def summary(self):
-		"""
-		Generate message summarizing data (e.g., counts, class balance)
-		Assumes hard labels
-		:return:
-		"""
-		#return "Instances: {}".format(len(self))
-
-	#def get_labels(self):
-		#return [(str(self.labels.iloc[i, 0]), data[1]) for i, data in enumerate(self)]
 
 	def __len__(self):
 		return len(self.labels)
@@ -273,18 +231,6 @@ class UKBB_LAX_MR(Dataset):
 
 		#self.labels = pd.read_csv(csv_data) if type(csv_data) is str else csv_data
 
-
-	#def summary(self):
-		"""
-		Generate message summarizing data (e.g., counts, class balance)
-		Assumes hard labels
-		:return:
-		"""
-		#return "Instances: {}".format(len(self))
-
-	#def get_labels(self):
-		#return [(str(self.labels.iloc[i, 0]), data[1]) for i, data in enumerate(self)]
-
 	def __len__(self):
 		return len(self.labels)
 
@@ -303,20 +249,8 @@ class UKBB_LAX_MR(Dataset):
 			filename = self.root_dir+'/la_4ch/'+str(pid)+'.npy'
 			#print(filename)
 			series = np.load(filename)
-
 				
 		#print(series.shape) # (50,208,x)
-		'''
-		if(self.preprocess):
-			# min-max normalization ( to apply z -normalization? )
-			for frame_num in range(series.shape[0]):
-				series[frame_num,:,:] = cv2.normalize(series[frame_num,:,:], None, 0, 255, cv2.NORM_MINMAX)
-			# histogram equalization
-			series = np.uint8(series)
-			clahe = cv2.createCLAHE(clipLimit=0.02)
-			for frame_num in range(series.shape[0]):
-				series[frame_num,:,:] = clahe.apply(series[frame_num,:,:])
-		'''
 
 		if(self.preprocess):
 			temp_input = np.copy(series)
@@ -354,6 +288,76 @@ class UKBB_LAX_MR(Dataset):
 		#print(label)
 
 		return (series, label)
+
+
+class UKBB_MR_Framewise(Dataset):
+	"""
+	UK Biobank cardiac MRI dataset
+	LAX series 
+	A single example is a patient with 1 frames and 1 label
+
+	"""
+	def __init__(self, root_dir, mask = False, seed=4321, preprocess = False):		
+		self.root_dir = root_dir
+		self.list = glob(root_dir+'/la_4ch/*.npy') 
+		np.random.seed(seed)
+		self.preprocess = preprocess
+		csv_data = "{}/labels.csv".format(root_dir)
+		labels = pd.read_csv(csv_data)
+		self.labels = labels
+		self.mask = mask
+
+	def __len__(self):
+		return len(self.labels)
+
+
+	def __getitem__(self, idx):
+		#filename = self.list[idx]		
+		pid = self.labels.iloc[idx, 0]
+
+		if(self.mask):
+			data_filename = self.root_dir+'/la_4ch/'+str(pid)+'.npy'
+			mask_filename = self.root_dir+'/la_4ch_mask/'+str(pid)+'.npy'
+			temp_data = np.load(data_filename)
+			temp_mask = np.load(mask_filename)
+			frame = np.multiply(temp_data,temp_mask)
+		else:
+			filename = self.root_dir+'/la_4ch/'+str(pid)+'.npy'
+			#print(filename)
+			frame = np.load(filename)
+				
+		print(frame.shape) # (208,x)?
+
+		if(self.preprocess):
+			temp_input = np.copy(frame)
+			temp = cv2.normalize(temp_input, None, 0, 255, cv2.NORM_MINMAX)
+			temp = np.uint8(temp)
+			clahe = cv2.createCLAHE(clipLimit=0.02)
+			frame = clahe.apply(temp)
+
+		frame = frame.astype(float) # type float64		
+
+		# padding to 224 x 224
+		m, n = frame.shape
+		if(m<224):
+			pad_size = (( 225 - m ) // 2 ) 
+			frame = np.pad(frame,((pad_size,pad_size),(0,0)),'minimum')
+
+		if(n<224):
+			pad_size = (( 225 - n ) // 2 ) 
+			frame = np.pad(frame,((0,0),(pad_size,pad_size)),'minimum')	
+
+		frame = np.expand_dims(series,1)
+		# converting from gray to RGB
+		frame = np.concatenate((frame,frame,frame),axis=0) # should it be axis=0?
+		print(series.shape) # (3,224,224)
+
+		label = self.labels.iloc[idx, 1]
+		label = 2-label # converting to 1-indexing and making minority class = 1 - to change this
+		#print(label)
+
+		return (frame, label)
+
 
 
 class UKBB_LAX_SelfSupervised(Dataset):

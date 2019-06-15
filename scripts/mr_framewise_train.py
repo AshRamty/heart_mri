@@ -1,5 +1,5 @@
 '''
-Runs supervised learning on MR data
+Runs supervised learning on single-frame MR data
 Does not include hyperparameter tuning
 
 '''
@@ -20,13 +20,10 @@ from torch.autograd import Variable
 from torch.utils.data import Dataset, DataLoader
 
 from metal.end_model import EndModel
-from metal.contrib.modules import Encoder, LSTMModule
+from metal.contrib.modules import Encoder
 
-#import metal.contrib.modules.resnet_cifar10 as resnet
-#from dataloaders.ukbb import UKBBCardiacMRI
-#from models.frame.densenet_av import DenseNet3, densenet_40_12_bc
-from dataloader_4ch import UKBB_LAX_MR
-from frame_encoder import FrameEncoderOC
+from dataloader_4ch import UKBB_MR_Framewise
+from frame_encoder import FrameEncoderOC 
 from sampler import ImbalancedDatasetSampler
 
 from utils import *
@@ -72,21 +69,20 @@ def train_model(args):
 
 	# Create datasets and dataloaders
 	train, dev, test = load_dataset(args)
-	#print('train size:',len(train)) # 250
-	#print('dev size:',len(dev)) # 250
-	#print('test size:',len(test)) # 250
-	# data in tuple of the form (series,label)
-	# series shape (50,3,224,224)
+	print('train size:',len(train)) # 
+	print('dev size:',len(dev)) # 
+	print('test size:',len(test)) # 
+	# data in tuple of the form (frame,label)
+	# frame shape (3,224,224)
 
 	#import pdb; pdb.set_trace()
 
 	data_loader = get_data_loader(train, dev, test, args.batch_size)
 
-	hidden_size = 128 
 	num_classes = 2
 	encode_dim = 1000
 
-	# Define input encoder
+	# Define input encoder - can use the same 
 	cnn_encoder = FrameEncoderOC
 
 	if(torch.cuda.is_available()):
@@ -94,23 +90,14 @@ def train_model(args):
 	else:
 		device = 'cpu'
 
-	# Define LSTM module
-	lstm_module = LSTMModule(
-		encode_dim,
-		hidden_size,
-		bidirectional=False,
-		verbose=False,
-		lstm_reduction="attention",
-		encoder_class=cnn_encoder,
-		)
 
 	# Define end model
 	end_model = EndModel(
-		input_module=lstm_module,
-		layer_out_dims=[hidden_size, num_classes],
+		input_module=cnn_encoder,
+		layer_out_dims=[encode_dim, num_classes],
 		optimizer="adam",
 		use_cuda=cuda,
-		batchnorm=True,
+		input_batchnorm=True,
 		seed=args.seed,
 		verbose=False,
 		)
@@ -136,7 +123,6 @@ def train_model(args):
 		#input_dropout = 0.1,
 		middle_dropout = dropout,
 		)
-
 
 	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy', 'precision', 'recall', 'f1','roc-auc'])
 	# Test end model 
