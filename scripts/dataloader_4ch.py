@@ -9,6 +9,8 @@ import pandas as pd
 import cv2
 from skimage.color import grey2rgb
 from torch.utils.data import Dataset, DataLoader
+import torch
+import torchvision
 
 class UKBB_LAX_Sequence(Dataset):
 	"""
@@ -326,7 +328,7 @@ class UKBB_MR_Framewise(Dataset):
 			#print(filename)
 			frame = np.load(filename)
 				
-		print(frame.shape) # (208,x)?
+		#print(frame.shape) # (208,x)
 
 		if(self.preprocess):
 			temp_input = np.copy(frame)
@@ -336,9 +338,11 @@ class UKBB_MR_Framewise(Dataset):
 			frame = clahe.apply(temp)
 
 		frame = frame.astype(float) # type float64		
+		#frame = frame.astype(np.double)
 
 		# padding to 224 x 224
 		m, n = frame.shape
+
 		if(m<224):
 			pad_size = (( 225 - m ) // 2 ) 
 			frame = np.pad(frame,((pad_size,pad_size),(0,0)),'minimum')
@@ -347,10 +351,12 @@ class UKBB_MR_Framewise(Dataset):
 			pad_size = (( 225 - n ) // 2 ) 
 			frame = np.pad(frame,((0,0),(pad_size,pad_size)),'minimum')	
 
-		frame = np.expand_dims(series,1)
+		frame = np.expand_dims(frame,0)
 		# converting from gray to RGB
 		frame = np.concatenate((frame,frame,frame),axis=0) # should it be axis=0?
-		print(series.shape) # (3,224,224)
+		#print(frame.shape) # (3,224,224)
+		#frame = torchvision.transforms.ToTensor(frame)
+		#frame = torch.from_numpy(frame)		
 
 		label = self.labels.iloc[idx, 1]
 		label = 2-label # converting to 1-indexing and making minority class = 1 - to change this

@@ -18,6 +18,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable
 from torch.utils.data import Dataset, DataLoader
+import torchvision.models as torch_models
 
 from metal.end_model import EndModel
 from metal.contrib.modules import Encoder
@@ -43,7 +44,7 @@ def load_dataset(args):
 	'''
 	Loading LAX 4ch data
 	'''
-	DataSet = UKBB_LAX_MR
+	DataSet = UKBB_MR_Framewise
 	train = DataSet(args.train, args.mask, seed=args.data_seed, preprocess = args.preprocess)
 	dev = DataSet(args.dev, args.mask, seed=args.data_seed, preprocess = args.preprocess)
 	if args.test:
@@ -83,17 +84,20 @@ def train_model(args):
 	encode_dim = 1000
 
 	# Define input encoder - can use the same 
-	cnn_encoder = FrameEncoderOC
+	#cnn_encoder = FrameEncoderOC
 
 	if(torch.cuda.is_available()):
 		device = 'cuda'
 	else:
 		device = 'cpu'
 
+	model = torch_models.resnet34(pretrained = True)
+	#model = model.double()
+	model = model.float()
 
 	# Define end model
 	end_model = EndModel(
-		input_module=cnn_encoder,
+		input_module=model,
 		layer_out_dims=[encode_dim, num_classes],
 		optimizer="adam",
 		use_cuda=cuda,
