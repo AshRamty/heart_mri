@@ -652,8 +652,8 @@ class UKBB_LAX_Roll3(Dataset):
 			pad_size = (( 225 - n ) // 2 ) 
 			series4ch = np.pad(series4ch,((0,0),(0,0),(pad_size,pad_size)),'minimum')	
 		
-		series4ch = np.expand_dims(series4ch,1) # (50,1,224,224)
-		series4ch = np.concatenate((series4ch,series4ch,series4ch),axis=1)
+		#series4ch = np.expand_dims(series4ch,1) # (50,1,224,224)
+		#series4ch = np.concatenate((series4ch,series4ch,series4ch),axis=1)
 	
 		series2ch = series2ch.astype(float) # type float64	
 		series2ch = np.roll(series2ch,-frame_num,axis=0)
@@ -668,12 +668,20 @@ class UKBB_LAX_Roll3(Dataset):
 			pad_size = (( 225 - n ) // 2 ) 
 			series2ch = np.pad(series2ch,((0,0),(0,0),(pad_size,pad_size)),'minimum')	
 		
-		series2ch = np.expand_dims(series2ch,1) # (50,1,224,224)
-		series2ch = np.concatenate((series2ch,series2ch,series2ch),axis=1)
+		#series2ch = np.expand_dims(series2ch,1) # (50,1,224,224)
+		#series2ch = np.concatenate((series2ch,series2ch,series2ch),axis=1)
 	
-		series =np.stack((series4ch,series2ch),0) # (2, 50, 3, 224, 224)
-		series = series.transpose([1,0,2,3,4]) # ( 50, 2, 3, 224, 224)
-		n_frames, n_channel, m, n = series4ch.shape
-		series = np.reshape(series,(2*n_frames,3,m,n))
+		#series =np.stack((series4ch,series2ch),0) # (2, 50, 3, 224, 224)
+		#series = series.transpose([1,0,2,3,4]) # ( 50, 2, 3, 224, 224)
+		#n_frames, n_channel, m, n = series4ch.shape
+		#series = np.reshape(series,(2*n_frames,3,m,n))
 
+		series =np.stack((series4ch,series2ch),0) # ( 2, 50, 224, 224 )
+		series = series.transpose([1,0,2,3]) # ( 50, 2, 224, 224 )
+		n_frames, m, n = series4ch.shape
+		series = np.reshape(series,(2*n_frames,m,n)) # ( 100, 224, 224 )
+
+		series = np.expand_dims(series,1) # (100,1,224,224)
+		series = np.concatenate((series,series,series),axis=1) # (100,3,224,224)
+	
 		return (series, label)
