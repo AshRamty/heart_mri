@@ -555,8 +555,9 @@ class UKBB_LAX_Roll2(Dataset):
 			series2ch = np.pad(series2ch,((0,0),(0,0),(pad_size,pad_size)),'minimum')	
 		
 		series2ch = np.expand_dims(series2ch,1) # (50,1,224,224)
-		series2ch = np.concatenate((series2ch,series4ch,series4ch),axis=1)
-	
+		series2ch = np.concatenate((series2ch,series2ch,series2ch),axis=1)
+		#print(series2ch.shape)
+		#print(series4ch.shape)
 		series = np.concatenate((series4ch,series2ch),0) # (100,3,224,224)
 
 
@@ -672,7 +673,7 @@ class UKBB_LAX_Roll3(Dataset):
 	
 		series =np.stack((series4ch,series2ch),0) # (2, 50, 3, 224, 224)
 		series = series.transpose([1,0,2,3,4]) # ( 50, 2, 3, 224, 224)
-		n_frames, m, n = series4ch.shape
+		n_frames, n_channel, m, n = series4ch.shape
 		series = np.reshape(series,(2*n_frames,3,m,n))
 
 		return (series, label)
