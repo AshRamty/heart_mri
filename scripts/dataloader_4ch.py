@@ -103,7 +103,7 @@ class UKBB_LAX_Roll(Dataset):
 			# min-max normalization ( to apply z -normalization? )
 			for frame_num in range(series.shape[0]):
 				temp[frame_num,:,:] = cv2.normalize(temp_input[frame_num,:,:], None, 0, 255, cv2.NORM_MINMAX)
-			# histogram equaliztempation
+			# histogram equalization
 			temp = np.uint8(temp)
 			clahe = cv2.createCLAHE(clipLimit=0.02)
 			for frame_num in range(series.shape[0]):
@@ -446,5 +446,233 @@ class UKBB_LAX_SelfSupervised(Dataset):
 		series = np.expand_dims(series,1) # (50,1,224,224)
 		series = np.concatenate((series,series,series),axis=1)
 		#print(series.shape) # (50,3,224,224)
+
+		return (series, label)
+
+
+class UKBB_LAX_Roll2(Dataset):
+	"""
+	UK Biobank cardiac MRI dataset
+	LAX series 
+	expands the data from using patient indexing to frame indexing
+	(num_eg, num_frames, img) --> (num_eg*num_frames, num_frames, img)
+	labels: (num_eg, num_frames) --> (num_eg*num_frames)
+	Data is rolled such that the data starts with the frame_num corresponding to label
+	
+	Data from both the 2 chamber view and 4 chamber view are used
+	the views are concatenated - with the 4ch view series first and 2ch view next
+
+	"""
+	def __init__(self,root_dir,labels, seed=123, mask = False, preprocess = False):
+		self.root_dir = root_dir
+		self.labels = labels
+		self.preprocess = preprocess
+		if(mask):
+			self.list4ch = glob(root_dir+'/la_4ch_masked/*.npy') 
+			self.list2ch = glob(root_dir+'/la_2ch_masked/*.npy') 
+		else:
+			self.list4ch = glob(root_dir+'/la_4ch/*.npy') 
+			self.list2ch = glob(root_dir+'/la_2ch/*.npy')
+
+		np.random.seed(seed)
+
+	def __len__(self):
+		return len(self.labels)
+
+	def __getitem__(self, idx):
+		all_labels = self.labels
+		if(len(all_labels.shape) == 2):
+			label = self.labels[idx,:]
+		else:
+			label = self.labels[idx]
+		#print(label.shape)
+		# switching order to have minimal class = 1
+		label = 3 - label		
+
+		# finding patient id number
+		p_idx = idx // 50
+		frame_num = idx % 50 
+		
+		filename4ch = self.list4ch[p_idx]
+		filename2ch = self.list2ch[p_idx]
+
+		if(self.preprocess):
+			input4ch = np.load(filename4ch)
+			input2ch = np.load(filename2ch)
+
+			temp4ch = np.zeros(input4ch.shape)
+			series4ch = np.zeros(input4ch.shape)
+			# min-max normalization ( to apply z -normalization? )
+			for frame_num in range(series4ch.shape[0]):
+				temp4ch[frame_num,:,:] = cv2.normalize(input4ch[frame_num,:,:], None, 0, 255, cv2.NORM_MINMAX)
+			# histogram equalization
+			temp4ch = np.uint8(temp4ch)
+			clahe = cv2.createCLAHE(clipLimit=0.02)
+			for frame_num in range(series.shape[0]):
+				series4ch[frame_num,:,:] = clahe.apply(temp4ch[frame_num,:,:])
+
+			temp2ch = np.zeros(input2ch.shape)
+			series2ch = np.zeros(input2ch.shape)
+			# min-max normalization ( to apply z -normalization? )
+			for frame_num in range(series4ch.shape[0]):
+				temp2ch[frame_num,:,:] = cv2.normalize(input2ch[frame_num,:,:], None, 0, 255, cv2.NORM_MINMAX)
+			# histogram equalization
+			temp2ch = np.uint8(temp2ch)
+			clahe = cv2.createCLAHE(clipLimit=0.02)
+			for frame_num in range(series.shape[0]):
+				series2ch[frame_num,:,:] = clahe.apply(temp2ch[frame_num,:,:])
+		else:
+			series4ch = np.load(filename4ch)
+			series2ch = np.load(filename2ch)
+
+		series4ch = series4ch.astype(float) # type float64	
+		series4ch = np.roll(series4ch,-frame_num,axis=0) 
+		if (series4ch.shape[1]<series4ch.shape[2]):
+    		series4ch = series4ch.transpose([0,2,1])
+
+		n_frames, m, n = series4ch.shape
+		if(m<224):
+			pad_size = (( 225 - m ) // 2 ) 
+			series4ch = np.pad(series4ch,((0,0),(pad_size,pad_size),(0,0)),'minimum')
+		if(n<224):
+			pad_size = (( 225 - n ) // 2 ) 
+			series4ch = np.pad(series4ch,((0,0),(0,0),(pad_size,pad_size)),'minimum')	
+		
+		series4ch = np.expand_dims(series4ch,1) # (50,1,224,224)
+		series4ch = np.concatenate((series4ch,series4ch,series4ch),axis=1)
+	
+		series2ch = series2ch.astype(float) # type float64	
+		series2ch = np.roll(series2ch,-frame_num,axis=0)
+		if (series2ch.shape[1]<series2ch.shape[2]):
+    		series2ch = series2ch.transpose([0,2,1])
+
+		n_frames, m, n = series2ch.shape
+		if(m<224):
+			pad_size = (( 225 - m ) // 2 ) 
+			series2ch = np.pad(series2ch,((0,0),(pad_size,pad_size),(0,0)),'minimum')
+		if(n<224):
+			pad_size = (( 225 - n ) // 2 ) 
+			series2ch = np.pad(series2ch,((0,0),(0,0),(pad_size,pad_size)),'minimum')	
+		
+		series2ch = np.expand_dims(series2ch,1) # (50,1,224,224)
+		series2ch = np.concatenate((series2ch,series4ch,series4ch),axis=1)
+	
+		series = np.concatenate((series4ch,series2ch),0) # (100,3,224,224)
+
+
+		return (series, label)
+
+
+class UKBB_LAX_Roll3(Dataset):
+	"""
+	UK Biobank cardiac MRI dataset
+	LAX series 
+	expands the data from using patient indexing to frame indexing
+	(num_eg, num_frames, img) --> (num_eg*num_frames, num_frames, img)
+	labels: (num_eg, num_frames) --> (num_eg*num_frames)
+	Data is rolled such that the data starts with the frame_num corresponding to label
+	
+	Data from both the 2 chamber view and 4 chamber view are used
+	the frames from the 2 sequences are alternated 
+
+	"""
+	def __init__(self,root_dir,labels, seed=123, mask = False, preprocess = False):
+		self.root_dir = root_dir
+		self.labels = labels
+		self.preprocess = preprocess
+		if(mask):
+			self.list4ch = glob(root_dir+'/la_4ch_masked/*.npy') 
+			self.list2ch = glob(root_dir+'/la_2ch_masked/*.npy') 
+		else:
+			self.list4ch = glob(root_dir+'/la_4ch/*.npy') 
+			self.list2ch = glob(root_dir+'/la_2ch/*.npy')
+
+		np.random.seed(seed)
+
+	def __len__(self):
+		return len(self.labels)
+
+	def __getitem__(self, idx):
+		all_labels = self.labels
+		if(len(all_labels.shape) == 2):
+			label = self.labels[idx,:]
+		else:
+			label = self.labels[idx]
+		#print(label.shape)
+		# switching order to have minimal class = 1
+		label = 3 - label		
+
+		# finding patient id number
+		p_idx = idx // 50
+		frame_num = idx % 50 
+		
+		filename4ch = self.list4ch[p_idx]
+		filename2ch = self.list2ch[p_idx]
+
+		if(self.preprocess):
+			input4ch = np.load(filename4ch)
+			input2ch = np.load(filename2ch)
+
+			temp4ch = np.zeros(input4ch.shape)
+			series4ch = np.zeros(input4ch.shape)
+			# min-max normalization ( to apply z -normalization? )
+			for frame_num in range(series4ch.shape[0]):
+				temp4ch[frame_num,:,:] = cv2.normalize(input4ch[frame_num,:,:], None, 0, 255, cv2.NORM_MINMAX)
+			# histogram equalization
+			temp4ch = np.uint8(temp4ch)
+			clahe = cv2.createCLAHE(clipLimit=0.02)
+			for frame_num in range(series.shape[0]):
+				series4ch[frame_num,:,:] = clahe.apply(temp4ch[frame_num,:,:])
+
+			temp2ch = np.zeros(input2ch.shape)
+			series2ch = np.zeros(input2ch.shape)
+			# min-max normalization ( to apply z -normalization? )
+			for frame_num in range(series4ch.shape[0]):
+				temp2ch[frame_num,:,:] = cv2.normalize(input2ch[frame_num,:,:], None, 0, 255, cv2.NORM_MINMAX)
+			# histogram equalization
+			temp2ch = np.uint8(temp2ch)
+			clahe = cv2.createCLAHE(clipLimit=0.02)
+			for frame_num in range(series.shape[0]):
+				series2ch[frame_num,:,:] = clahe.apply(temp2ch[frame_num,:,:])
+		else:
+			series4ch = np.load(filename4ch)
+			series2ch = np.load(filename2ch)
+
+		series4ch = series4ch.astype(float) # type float64	
+		series4ch = np.roll(series4ch,-frame_num,axis=0) 
+		if (series4ch.shape[1]<series4ch.shape[2]):
+    		series4ch = series4ch.transpose([0,2,1])
+
+		n_frames, m, n = series4ch.shape
+		if(m<224):
+			pad_size = (( 225 - m ) // 2 ) 
+			series4ch = np.pad(series4ch,((0,0),(pad_size,pad_size),(0,0)),'minimum')
+		if(n<224):
+			pad_size = (( 225 - n ) // 2 ) 
+			series4ch = np.pad(series4ch,((0,0),(0,0),(pad_size,pad_size)),'minimum')	
+		
+		series4ch = np.expand_dims(series4ch,1) # (50,1,224,224)
+		series4ch = np.concatenate((series4ch,series4ch,series4ch),axis=1)
+	
+		series2ch = series2ch.astype(float) # type float64	
+		series2ch = np.roll(series2ch,-frame_num,axis=0)
+		if (series2ch.shape[1]<series2ch.shape[2]):
+    		series2ch = series2ch.transpose([0,2,1])
+
+		n_frames, m, n = series2ch.shape
+		if(m<224):
+			pad_size = (( 225 - m ) // 2 ) 
+			series2ch = np.pad(series2ch,((0,0),(pad_size,pad_size),(0,0)),'minimum')
+		if(n<224):
+			pad_size = (( 225 - n ) // 2 ) 
+			series2ch = np.pad(series2ch,((0,0),(0,0),(pad_size,pad_size)),'minimum')	
+		
+		series2ch = np.expand_dims(series2ch,1) # (50,1,224,224)
+		series2ch = np.concatenate((series2ch,series2ch,series2ch),axis=1)
+	
+		series =np.stack((series4ch,series2ch),0) # (2, 50, 3, 224, 224)
+		series = series.transpose([1,0,2,3,4]) # ( 50, 2, 3, 224, 224)
+		n_frames, m, n = series4ch.shape
+		series = np.reshape(series,(2*n_frames,3,m,n))
 
 		return (series, label)
