@@ -528,7 +528,7 @@ class UKBB_LAX_Roll2(Dataset):
 		series4ch = series4ch.astype(float) # type float64	
 		series4ch = np.roll(series4ch,-frame_num,axis=0) 
 		if (series4ch.shape[1]<series4ch.shape[2]):
-    		series4ch = series4ch.transpose([0,2,1])
+			series4ch = series4ch.transpose([0,2,1])
 
 		n_frames, m, n = series4ch.shape
 		if(m<224):
@@ -544,7 +544,7 @@ class UKBB_LAX_Roll2(Dataset):
 		series2ch = series2ch.astype(float) # type float64	
 		series2ch = np.roll(series2ch,-frame_num,axis=0)
 		if (series2ch.shape[1]<series2ch.shape[2]):
-    		series2ch = series2ch.transpose([0,2,1])
+			series2ch = series2ch.transpose([0,2,1])
 
 		n_frames, m, n = series2ch.shape
 		if(m<224):
@@ -641,7 +641,7 @@ class UKBB_LAX_Roll3(Dataset):
 		series4ch = series4ch.astype(float) # type float64	
 		series4ch = np.roll(series4ch,-frame_num,axis=0) 
 		if (series4ch.shape[1]<series4ch.shape[2]):
-    		series4ch = series4ch.transpose([0,2,1])
+			series4ch = series4ch.transpose([0,2,1])
 
 		n_frames, m, n = series4ch.shape
 		if(m<224):
@@ -657,7 +657,7 @@ class UKBB_LAX_Roll3(Dataset):
 		series2ch = series2ch.astype(float) # type float64	
 		series2ch = np.roll(series2ch,-frame_num,axis=0)
 		if (series2ch.shape[1]<series2ch.shape[2]):
-    		series2ch = series2ch.transpose([0,2,1])
+			series2ch = series2ch.transpose([0,2,1])
 
 		n_frames, m, n = series2ch.shape
 		if(m<224):
