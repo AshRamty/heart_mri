@@ -508,7 +508,7 @@ class UKBB_LAX_Roll2(Dataset):
 			# histogram equalization
 			temp4ch = np.uint8(temp4ch)
 			clahe = cv2.createCLAHE(clipLimit=0.02)
-			for frame_num in range(series.shape[0]):
+			for frame_num in range(series4ch.shape[0]):
 				series4ch[frame_num,:,:] = clahe.apply(temp4ch[frame_num,:,:])
 
 			temp2ch = np.zeros(input2ch.shape)
@@ -519,7 +519,7 @@ class UKBB_LAX_Roll2(Dataset):
 			# histogram equalization
 			temp2ch = np.uint8(temp2ch)
 			clahe = cv2.createCLAHE(clipLimit=0.02)
-			for frame_num in range(series.shape[0]):
+			for frame_num in range(series2ch.shape[0]):
 				series2ch[frame_num,:,:] = clahe.apply(temp2ch[frame_num,:,:])
 		else:
 			series4ch = np.load(filename4ch)
@@ -621,7 +621,7 @@ class UKBB_LAX_Roll3(Dataset):
 			# histogram equalization
 			temp4ch = np.uint8(temp4ch)
 			clahe = cv2.createCLAHE(clipLimit=0.02)
-			for frame_num in range(series.shape[0]):
+			for frame_num in range(series4ch.shape[0]):
 				series4ch[frame_num,:,:] = clahe.apply(temp4ch[frame_num,:,:])
 
 			temp2ch = np.zeros(input2ch.shape)
@@ -632,7 +632,7 @@ class UKBB_LAX_Roll3(Dataset):
 			# histogram equalization
 			temp2ch = np.uint8(temp2ch)
 			clahe = cv2.createCLAHE(clipLimit=0.02)
-			for frame_num in range(series.shape[0]):
+			for frame_num in range(series2ch.shape[0]):
 				series2ch[frame_num,:,:] = clahe.apply(temp2ch[frame_num,:,:])
 		else:
 			series4ch = np.load(filename4ch)
