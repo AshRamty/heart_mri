@@ -92,8 +92,8 @@ def train_model(args):
 		device = 'cpu'
 
 	model = torch_models.resnet34(pretrained = True)
-	#model = model.double()
-	model = model.float()
+	model = model.double()
+	#model = model.float()
 
 	# Define end model
 	end_model = EndModel(
@@ -163,7 +163,7 @@ if __name__ == "__main__":
 	argparser.add_argument("--seed",type=int,default=123,help="random seed for initialisation")
 	argparser.add_argument("--mask",type=str,default=False,help="Selects whether to use segmented data")
 	argparser.add_argument("--checkpoint_dir", type=str, default="mr_checkpoints", help="dir to save checkpoints")
-	argparser.add_argument("--preprocess", type=bool, default=True, help="Selects whether to apply preprocessing (histogram equalization) to data")
+	argparser.add_argument("--preprocess", type=bool, default=False, help="Selects whether to apply preprocessing (histogram equalization) to data")
 	
 	args = argparser.parse_args()
 

@@ -361,7 +361,7 @@ class UKBB_MR_Framewise(Dataset):
 		label = self.labels.iloc[idx, 1]
 		label = 2-label # converting to 1-indexing and making minority class = 1 - to change this
 		#print(label)
-
+		#frame = torch.tensor(frame)
 		return (frame, label)
 
 
