@@ -337,7 +337,7 @@ class UKBB_MR_Framewise(Dataset):
 			clahe = cv2.createCLAHE(clipLimit=0.02)
 			frame = clahe.apply(temp)
 
-		frame = frame.astype(float) # type float64		
+		frame = frame.astype(np.float)	
 		#frame = frame.astype(np.double)
 
 		# padding to 224 x 224
