@@ -133,13 +133,15 @@ def train_model(args):
 	#import ipdb; ipdb.set_trace()
 	Y_p, Y, Y_s = end_model._get_predictions(data_loader["dev"], break_ties='random', return_probs=True)
 	dev_labels = dev.labels
-	Y_s_0 = Y_s[:,0] ; Y_s_1 = Y_s[:,1]  
-	Y_p = list(Y_p); Y = list(Y); Y_s = list(Y_s)
-	Y_p.insert(0,"Y_p"),Y.insert(0,"Y"),Y_s_0.insert(0,"Y_s_0");Y_s_1.insert(0, "Y_s_1")
-	np.save("mr_framewise_small_result",np.column_stack((dev_labels,Y_p, Y, Y_s_0, Y_s_1)))
-
-
+	Y_s_0 =list(Y_s[:,0]) ; Y_s_1 = list(Y_s[:,1]); 
+	dev_ID = list(dev_labels["ID"]);dev_LABEL = list(dev_labels["LABEL"])  
+	Y_p = list(Y_p); Y = list(Y); 
+	Y_p.insert(0,"Y_p"),Y.insert(0,"Y"),
+	Y_s_0.insert(0,"Y_s_0");Y_s_1.insert(0, "Y_s_1")
+	dev_ID.insert(0,"ID"); dev_LABEL.insert(0,"LABEL")
 	import ipdb; ipdb.set_trace()
+	np.save("mr_framewise_small_result",np.column_stack((dev_ID,dev_LABEL,Y_p, Y, Y_s_0, Y_s_1)))
+
 	# Test end model 
 	'''
 	if(test_loader != None):
