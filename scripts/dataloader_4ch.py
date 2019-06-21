@@ -316,7 +316,6 @@ class UKBB_MR_Framewise(Dataset):
 	def __getitem__(self, idx):
 		#filename = self.list[idx]		
 		pid = self.labels.iloc[idx, 0]
-		print(pid)
 
 		if(self.mask):
 			data_filename = self.root_dir+'/la_4ch/'+str(pid)+'.npy'
