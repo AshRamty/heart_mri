@@ -139,8 +139,17 @@ def train_model(args):
 	Y_p.insert(0,"Y_p"),Y.insert(0,"Y"),
 	Y_s_0.insert(0,"Y_s_0");Y_s_1.insert(0, "Y_s_1")
 	dev_ID.insert(0,"ID"); dev_LABEL.insert(0,"LABEL")
-	import ipdb; ipdb.set_trace()
-	np.save("mr_framewise_small_result",np.column_stack((dev_ID,dev_LABEL,Y_p, Y, Y_s_0, Y_s_1)))
+	np.save(args.mr_result_filename + "_dev",np.column_stack((dev_ID,dev_LABEL,Y_p, Y, Y_s_0, Y_s_1)))
+
+	Y_p, Y, Y_s = end_model._get_predictions(data_loader["test"], break_ties='random', return_probs=True)
+	test_labels = test.labels
+	Y_s_0 =list(Y_s[:,0]) ; Y_s_1 = list(Y_s[:,1]); 
+	test_ID = list(test_labels["ID"]);test_LABEL = list(test_labels["LABEL"])  
+	Y_p = list(Y_p); Y = list(Y); 
+	Y_p.insert(0,"Y_p"),Y.insert(0,"Y"),
+	Y_s_0.insert(0,"Y_s_0");Y_s_1.insert(0, "Y_s_1")
+	test_ID.insert(0,"ID"); test_LABEL.insert(0,"LABEL")
+	np.save(args.mr_result_filename + "_test",np.column_stack((test_ID,test_LABEL,Y_p, Y, Y_s_0, Y_s_1)))
 
 	# Test end model 
 	'''
@@ -178,6 +187,7 @@ if __name__ == "__main__":
 	argparser.add_argument("--checkpoint_dir", type=str, default="mr_checkpoints", help="dir to save checkpoints")
 	argparser.add_argument("--preprocess", type=bool, default=False, help="Selects whether to apply preprocessing (histogram equalization) to data")
 	
+	argparser.add_argument("--mr_result_filename", type=str, default="mr_framewise_results/mr_test", help="filename to save result")
 	args = argparser.parse_args()
 
 	if not args.quiet:
