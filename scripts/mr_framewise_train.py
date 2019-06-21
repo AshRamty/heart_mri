@@ -131,9 +131,9 @@ def train_model(args):
 	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy', 'precision', 'recall', 'f1','roc-auc'])
 
 	import ipdb; ipdb.set_trace()
-	Y_p, Y, Y_s = end_model._get_predictions(data, break_ties='random', return_probs=True)
+	Y_p, Y, Y_s = end_model._get_predictions(data_loader["dev"], break_ties='random', return_probs=True)
 	pid_list = []
-	for pid in end_model.label:
+	for pid in dev.labels:
 		pid_list.append(pid)
 
 	import ipdb; ipdb.set_trace()
