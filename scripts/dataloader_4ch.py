@@ -53,6 +53,11 @@ class UKBB_LAX_Sequence(Dataset):
 
 		return (series, label)
 
+def csv2list(csv_file, root_dir, cat_dir, pid_str = ''):
+	df = pd.read_csv(f"{root_dir}/{csv_file}")
+	pids = list(df.PID)
+	paths = [f"{root_dir}/{cat_dir}/{pid}{pid_str}.npy" for pid in pids]
+	return paths
 
 class UKBB_LAX_Roll(Dataset):
 	"""
@@ -65,14 +70,16 @@ class UKBB_LAX_Roll(Dataset):
 
 
 	"""
-	def __init__(self,root_dir,labels, seed=123, mask = False, preprocess = True):
+	def __init__(self,root_dir,labels, seed=123, mask = False, preprocess = True, root_dir_csv = "pid_list.csv"):
 		self.root_dir = root_dir
 		self.labels = labels
 		self.preprocess = preprocess
 		if(mask):
-			self.list = glob(root_dir+'/la_4ch_masked/*.npy') 
+			#self.list = glob(root_dir+'/la_4ch_masked/*.npy') 
+			self.list = csv2list(root_dir_csv, root_dir, "la_4ch_masked")
 		else:
-			self.list = glob(root_dir+'/la_4ch/*.npy') 
+			#self.list = glob(root_dir+'/la_4ch/*.npy') 
+			self.list = csv2list(root_dir_csv, root_dir, "la_4ch")
 
 		np.random.seed(seed)
 
@@ -101,13 +108,13 @@ class UKBB_LAX_Roll(Dataset):
 			temp = np.zeros(temp_input.shape)
 			series = np.zeros(temp_input.shape)
 			# min-max normalization ( to apply z -normalization? )
-			for frame_num in range(series.shape[0]):
-				temp[frame_num,:,:] = cv2.normalize(temp_input[frame_num,:,:], None, 0, 255, cv2.NORM_MINMAX)
+			for iter in range(series.shape[0]):
+				temp[iter,:,:] = cv2.normalize(temp_input[iter,:,:], None, 0, 255, cv2.NORM_MINMAX)
 			# histogram equalization
 			temp = np.uint8(temp)
 			clahe = cv2.createCLAHE(clipLimit=0.02)
-			for frame_num in range(series.shape[0]):
-				series[frame_num,:,:] = clahe.apply(temp[frame_num,:,:])
+			for iter in range(series.shape[0]):
+				series[iter,:,:] = clahe.apply(temp[iter,:,:])
 		else:
 			series = np.load(filename)
 
@@ -259,13 +266,13 @@ class UKBB_LAX_MR(Dataset):
 			temp = np.zeros(temp_input.shape)
 			series = np.zeros(temp_input.shape)
 			# min-max normalization ( to apply z -normalization? )
-			for frame_num in range(series.shape[0]):
-				temp[frame_num,:,:] = cv2.normalize(temp_input[frame_num,:,:], None, 0, 255, cv2.NORM_MINMAX)
+			for iter in range(series.shape[0]):
+				temp[iter,:,:] = cv2.normalize(temp_input[iter,:,:], None, 0, 255, cv2.NORM_MINMAX)
 			# histogram equaliztempation
 			temp = np.uint8(temp)
 			clahe = cv2.createCLAHE(clipLimit=0.02)
-			for frame_num in range(series.shape[0]):
-				series[frame_num,:,:] = clahe.apply(temp[frame_num,:,:])
+			for iter in range(series.shape[0]):
+				series[iter,:,:] = clahe.apply(temp[iter,:,:])
 
 
 		series = series.astype(float) # type float64		
@@ -449,7 +456,7 @@ class UKBB_LAX_SelfSupervised(Dataset):
 
 		return (series, label)
 
-
+''' 
 class UKBB_LAX_Roll2(Dataset):
 	"""
 	UK Biobank cardiac MRI dataset
@@ -503,24 +510,24 @@ class UKBB_LAX_Roll2(Dataset):
 			temp4ch = np.zeros(input4ch.shape)
 			series4ch = np.zeros(input4ch.shape)
 			# min-max normalization ( to apply z -normalization? )
-			for frame_num in range(series4ch.shape[0]):
-				temp4ch[frame_num,:,:] = cv2.normalize(input4ch[frame_num,:,:], None, 0, 255, cv2.NORM_MINMAX)
+			for iter in range(series4ch.shape[0]):
+				temp4ch[iter,:,:] = cv2.normalize(input4ch[iter,:,:], None, 0, 255, cv2.NORM_MINMAX)
 			# histogram equalization
 			temp4ch = np.uint8(temp4ch)
 			clahe = cv2.createCLAHE(clipLimit=0.02)
-			for frame_num in range(series4ch.shape[0]):
-				series4ch[frame_num,:,:] = clahe.apply(temp4ch[frame_num,:,:])
+			for iter in range(series4ch.shape[0]):
+				series4ch[iter,:,:] = clahe.apply(temp4ch[iter,:,:])
 
 			temp2ch = np.zeros(input2ch.shape)
 			series2ch = np.zeros(input2ch.shape)
 			# min-max normalization ( to apply z -normalization? )
-			for frame_num in range(series4ch.shape[0]):
-				temp2ch[frame_num,:,:] = cv2.normalize(input2ch[frame_num,:,:], None, 0, 255, cv2.NORM_MINMAX)
+			for iter in range(series4ch.shape[0]):
+				temp2ch[iter,:,:] = cv2.normalize(input2ch[iter,:,:], None, 0, 255, cv2.NORM_MINMAX)
 			# histogram equalization
 			temp2ch = np.uint8(temp2ch)
 			clahe = cv2.createCLAHE(clipLimit=0.02)
-			for frame_num in range(series2ch.shape[0]):
-				series2ch[frame_num,:,:] = clahe.apply(temp2ch[frame_num,:,:])
+			for iter in range(series2ch.shape[0]):
+				series2ch[iter,:,:] = clahe.apply(temp2ch[iter,:,:])
 		else:
 			series4ch = np.load(filename4ch)
 			series2ch = np.load(filename2ch)
@@ -617,24 +624,24 @@ class UKBB_LAX_Roll3(Dataset):
 			temp4ch = np.zeros(input4ch.shape)
 			series4ch = np.zeros(input4ch.shape)
 			# min-max normalization ( to apply z -normalization? )
-			for frame_num in range(series4ch.shape[0]):
-				temp4ch[frame_num,:,:] = cv2.normalize(input4ch[frame_num,:,:], None, 0, 255, cv2.NORM_MINMAX)
+			for iter in range(series4ch.shape[0]):
+				temp4ch[iter,:,:] = cv2.normalize(input4ch[iter,:,:], None, 0, 255, cv2.NORM_MINMAX)
 			# histogram equalization
 			temp4ch = np.uint8(temp4ch)
 			clahe = cv2.createCLAHE(clipLimit=0.02)
-			for frame_num in range(series4ch.shape[0]):
-				series4ch[frame_num,:,:] = clahe.apply(temp4ch[frame_num,:,:])
+			for iter in range(series4ch.shape[0]):
+				series4ch[iter,:,:] = clahe.apply(temp4ch[iter,:,:])
 
 			temp2ch = np.zeros(input2ch.shape)
 			series2ch = np.zeros(input2ch.shape)
 			# min-max normalization ( to apply z -normalization? )
-			for frame_num in range(series4ch.shape[0]):
-				temp2ch[frame_num,:,:] = cv2.normalize(input2ch[frame_num,:,:], None, 0, 255, cv2.NORM_MINMAX)
+			for iter in range(series4ch.shape[0]):
+				temp2ch[iter,:,:] = cv2.normalize(input2ch[iter,:,:], None, 0, 255, cv2.NORM_MINMAX)
 			# histogram equalization
 			temp2ch = np.uint8(temp2ch)
 			clahe = cv2.createCLAHE(clipLimit=0.02)
-			for frame_num in range(series2ch.shape[0]):
-				series2ch[frame_num,:,:] = clahe.apply(temp2ch[frame_num,:,:])
+			for iter in range(series2ch.shape[0]):
+				series2ch[iter,:,:] = clahe.apply(temp2ch[iter,:,:])
 		else:
 			series4ch = np.load(filename4ch)
 			series2ch = np.load(filename2ch)
@@ -685,3 +692,4 @@ class UKBB_LAX_Roll3(Dataset):
 		series = np.concatenate((series,series,series),axis=1) # (100,3,224,224)
 	
 		return (series, label)
+'''
