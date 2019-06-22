@@ -237,15 +237,14 @@ def train_model(args):
 		"log_dir":  args.log_dir,
 		"run_dir":  args.run_dir,
 		"run_name": args.run_name,
-		"writer_metrics": ['accuracy','precision', 'recall', 'f1','roc-auc','ndcg']},
+		#"writer_metrics": ['accuracy','precision', 'recall', 'f1','roc-auc','ndcg']
+		},
 		#validation_metric='f1',
 		)
 
 	# evaluate end model
 	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','roc-auc','ndcg'])
-	#end_model.score((Xtest,Ytest), verbose=True, metric=['accuracy','precision', 'recall', 'f1'])
-	
-
+	end_model.score(data_loader["test"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','roc-auc','ndcg'])	
 
 if __name__ == "__main__":
 	# Checking to see if cuda is available for GPU use
