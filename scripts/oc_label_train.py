@@ -64,20 +64,25 @@ def read_labels(label_list):
 
 	return L
 
+def csv2list(csv_file, root_dir, cat_dir, pid_str = ''):
+	df = pd.read_csv(f"{root_dir}/{csv_file}")
+	pids = list(df.ID)
+	paths = [f"{root_dir}/{cat_dir}/{pid}{pid_str}.npy" for pid in pids]
+	return paths
+
 
 def load_labels(args):
 	#path = os.getcwd()
 	L = {}
 	Y = {}
 
-	#train_lf_list = glob(args.train + '/lf_labels/*.npy') 
-	L["train"] = read_labels(glob(args.train + '/lf_labels/*.npy'))
-	L["dev"] = read_labels(glob(args.dev + '/lf_labels/*.npy'))
-	L["test"] = read_labels(glob(args.test + '/lf_labels/*.npy'))
-
-	#import ipdb; ipdb.set_trace()
-	Y["dev"] = read_labels(glob(args.dev + '/true_labels/*.npy'))
-	Y["test"] = read_labels(glob(args.test + '/true_labels/*.npy'))	
+	#L["train"] = read_labels(glob(args.train + '/lf_labels/*.npy'))
+	L['train'] = read_labels(csv2list(args.train_csv, args.train, "lf_labels"))
+	L['dev'] = read_labels(csv2list(args.dev_csv, args.dev, "lf_labels"))
+	L['test'] = read_labels(csv2list(args.test_csv, args.test, "lf_labels"))
+	
+	Y["dev"] = read_labels(csv2list(args.dev_csv, args.dev, "true_labels","_labels"))
+	Y["test"] = read_labels(csv2list(args.test_csv, args.test, "true_labels","_labels"))   
 
 	return L,Y
 
@@ -255,6 +260,10 @@ if __name__ == "__main__":
 	argparser.add_argument("--train", type=str, default=None, help="training set")
 	argparser.add_argument("--dev", type=str, default=None, help="dev (validation) set")
 	argparser.add_argument("--test", type=str, default=None, help="test set")
+
+	argparser.add_argument("--train_csv", type=str, default="pid_list.csv", help="training set PID csv file")
+	argparser.add_argument("--dev_csv", type=str, default="pid_list.csv", help="dev (validation) set PID csv file")
+	argparser.add_argument("--test_csv", type=str, default="pid_list.csv", help="test set PID csv file")
 
 	#argparser.add_argument("-c", "--config", type=str, default=None, help="load model config JSON")
 	argparser.add_argument("--num_workers",type=int,default=8,help = "number of workers")

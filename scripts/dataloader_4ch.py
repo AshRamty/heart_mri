@@ -220,11 +220,13 @@ class UKBB_LAX_MR(Dataset):
 	A single example is a patient with 50 frames and 1 label
 
 	"""
-	def __init__(self, root_dir, mask = False, seed=4321, preprocess = True):
+	def __init__(self, root_dir, mask = False, seed=4321, preprocess = True, root_dir_csv = "pid_list.csv"):
 		# either load from CSV or just use the provided pandas dataframe
 		
 		self.root_dir = root_dir
-		self.list = glob(root_dir+'/la_4ch/*.npy') 
+		#self.list = glob(root_dir+'/la_4ch/*.npy')
+		self.list = csv2list(root_dir_csv, root_dir, "la_4ch")
+
 		np.random.seed(seed)
 		#self.series = series
 		self.preprocess = preprocess
@@ -306,9 +308,11 @@ class UKBB_MR_Framewise(Dataset):
 	A single example is a patient with 1 frames and 1 label
 
 	"""
-	def __init__(self, root_dir, mask = False, seed=4321, preprocess = False):		
+	def __init__(self, root_dir, mask = False, seed=4321, preprocess = False, root_dir_csv = "pid_list.csv"):		
 		self.root_dir = root_dir
-		self.list = glob(root_dir+'/la_4ch/*.npy') 
+		#self.list = glob(root_dir+'/la_4ch/*.npy') 
+		self.list = csv2list(root_dir_csv, root_dir, "la_4ch")
+
 		np.random.seed(seed)
 		self.preprocess = preprocess
 		csv_data = "{}/labels.csv".format(root_dir)
@@ -389,12 +393,14 @@ class UKBB_LAX_SelfSupervised(Dataset):
 	
 
 	"""
-	def __init__(self, root_dir, seed=123, mask = False, shuffle = False):
+	def __init__(self, root_dir, seed=123, mask = False, shuffle = False, root_dir_csv = "pid_list.csv"):
 		self.root_dir = root_dir
 		if(mask):
-			self.list = glob(root_dir+'/la_4ch_masked/*.npy') 
+			#self.list = glob(root_dir+'/la_4ch_masked/*.npy') 
+			self.list = csv2list(root_dir_csv, root_dir, "la_4ch_masked")
 		else:
-			self.list = glob(root_dir+'/la_4ch/*.npy') 
+			#self.list = glob(root_dir+'/la_4ch/*.npy') 
+			self.list = csv2list(root_dir_csv, root_dir, "la_4ch")
 
 		np.random.seed(seed)
 		self.shuffle = shuffle
