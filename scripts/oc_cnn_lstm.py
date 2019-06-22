@@ -82,13 +82,13 @@ def load_labels(args):
 	#L["test"] = read_labels(glob(args.test + '/lf_labels/*.npy'))
 	L['train'] = read_labels(csv2list(args.train_csv, args.train, "lf_labels"))
 	L['dev'] = read_labels(csv2list(args.dev_csv, args.dev, "lf_labels"))
-    L['test'] = read_labels(csv2list(args.test_csv, args.test, "lf_labels"))
+ 	L['test'] = read_labels(csv2list(args.test_csv, args.test, "lf_labels"))
 
 	#import ipdb; ipdb.set_trace()
 	#Y["dev"] = read_labels(glob(args.dev + '/true_labels/*.npy'))
 	#Y["test"] = read_labels(glob(args.test + '/true_labels/*.npy'))	
 	Y["dev"] = read_labels(csv2list(args.dev_csv, args.dev, "true_labels","_labels"))
-    Y["test"] = read_labels(csv2list(args.test_csv, args.test, "true_labels","_labels"))   
+	Y["test"] = read_labels(csv2list(args.test_csv, args.test, "true_labels","_labels"))   
 
 	Y["dev"] = Y["dev"]+1 
 	Y["test"] = Y["test"]+1
