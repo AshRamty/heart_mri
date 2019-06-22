@@ -55,7 +55,7 @@ class UKBB_LAX_Sequence(Dataset):
 
 def csv2list(csv_file, root_dir, cat_dir, pid_str = ''):
 	df = pd.read_csv(f"{root_dir}/{csv_file}")
-	pids = list(df.PID)
+	pids = list(df.ID)
 	paths = [f"{root_dir}/{cat_dir}/{pid}{pid_str}.npy" for pid in pids]
 	return paths
 
