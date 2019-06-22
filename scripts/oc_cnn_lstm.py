@@ -280,7 +280,7 @@ if __name__ == "__main__":
 	argparser.add_argument("--checkpoint_dir", type=str, default="oc_checkpoints", help="dir to save checkpoints")
 
 	argparser.add_argument("--requires_grad", type=bool, default=False, help="Selects whether to freeze or finetune frame encoder")
-	argparser.add_argument("--preprocess", type=bool, default=True, help="Selects whether to apply preprocessing (histogram equalization) to data")
+	argparser.add_argument("--preprocess", type=bool, default=False, help="Selects whether to apply preprocessing (histogram equalization) to data")
 
 	argparser.add_argument("--log_dir", type=str, default="metal_run_logs", help="directory to save run logs")
 	argparser.add_argument("--run_dir", type=str, default="oc_cnn_lstm", help="directory to save run within log_dir")
