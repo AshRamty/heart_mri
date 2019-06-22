@@ -229,15 +229,15 @@ def train_model(args):
 		verbose=True,
 		progress_bar = True,
 		loss_weights = [0.55,0.45],
-		batchnorm = False,
 		input_dropout = 0.1,
 		middle_dropout = dropout,
 		checkpoint_dir = args.checkpoint_dir,
-		writer = True,
-		writer_config["log_dir"] = args.log_dir,
-		writer_config["run_dir"] = args.run_dir,
-		writer_config["run_name"] = args.run_name,
-		writer_config["writer_metrics"] = ['accuracy','precision', 'recall', 'f1','roc-auc','ndcg'],
+		writer = "json",
+		writer_config = {
+		"log_dir":  args.log_dir,
+		"run_dir":  args.run_dir,
+		"run_name": args.run_name,
+		"writer_metrics": ['accuracy','precision', 'recall', 'f1','roc-auc','ndcg']},
 		#validation_metric='f1',
 		)
 
