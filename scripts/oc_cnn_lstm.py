@@ -243,7 +243,9 @@ def train_model(args):
 		)
 
 	# evaluate end model
+	print("Dev Set Performance")
 	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','roc-auc','ndcg'])
+	print("Test Set Performance")
 	end_model.score(data_loader["test"], verbose=True, metric=['accuracy','precision', 'recall', 'f1','roc-auc','ndcg'])	
 
 if __name__ == "__main__":
