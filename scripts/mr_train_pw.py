@@ -170,12 +170,12 @@ def train_model(args):
 		#validation_metric='accuracy',
 		#input_dropout = 0.1,
 		middle_dropout = dropout,
-		writer = "json",
-		writer_config = {
-		"log_dir":  args.log_dir,
-		"run_dir":  args.run_dir,
-		"run_name": args.run_name,
-		},
+		#writer = "json",
+		#writer_config = {
+		#"log_dir":  args.log_dir,
+		#"run_dir":  args.run_dir,
+		#"run_name": args.run_name,
+		#},
 		)
 
 	print("Dev Set Performance")
@@ -215,9 +215,9 @@ if __name__ == "__main__":
 	argparser.add_argument("--requires_grad", type=bool, default=False, help="Selects whether to freeze or finetune frame encoder")
 	argparser.add_argument("--preprocess", type=bool, default=True, help="Selects whether to apply preprocessing (histogram equalization) to data")
 
-	argparser.add_argument("--log_dir", type=str, default="metal_run_logs", help="directory to save run logs")
-	argparser.add_argument("--run_dir", type=str, default="mr_pw", help="directory to save run within log_dir")
-	argparser.add_argument("--run_name", type=str, default="untitled", help="name of the run")
+	#argparser.add_argument("--log_dir", type=str, default="metal_run_logs", help="directory to save run logs")
+	#argparser.add_argument("--run_dir", type=str, default="mr_pw", help="directory to save run within log_dir")
+	#argparser.add_argument("--run_name", type=str, default="untitled", help="name of the run")
 
 	args = argparser.parse_args()
 

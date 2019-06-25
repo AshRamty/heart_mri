@@ -232,13 +232,13 @@ def train_model(args):
 		input_dropout = 0.1,
 		middle_dropout = dropout,
 		checkpoint_dir = args.checkpoint_dir,
-		writer = "json",
-		writer_config = {
-		"log_dir":  args.log_dir,
-		"run_dir":  args.run_dir,
-		"run_name": args.run_name,
+		#writer = "json",
+		#writer_config = {
+		#"log_dir":  args.log_dir,
+		#"run_dir":  args.run_dir,
+		#"run_name": args.run_name,
 		#"writer_metrics": ['accuracy','precision', 'recall', 'f1','roc-auc','ndcg']
-		},
+		#},
 		#validation_metric='f1',
 		)
 
@@ -283,9 +283,9 @@ if __name__ == "__main__":
 	argparser.add_argument("--requires_grad", type=bool, default=False, help="Selects whether to freeze or finetune frame encoder")
 	argparser.add_argument("--preprocess", type=bool, default=False, help="Selects whether to apply preprocessing (histogram equalization) to data")
 
-	argparser.add_argument("--log_dir", type=str, default="metal_run_logs", help="directory to save run logs")
-	argparser.add_argument("--run_dir", type=str, default="oc_cnn_lstm", help="directory to save run within log_dir")
-	argparser.add_argument("--run_name", type=str, default="untitled", help="name of the run")
+	#argparser.add_argument("--log_dir", type=str, default="metal_run_logs", help="directory to save run logs")
+	#argparser.add_argument("--run_dir", type=str, default="oc_cnn_lstm", help="directory to save run within log_dir")
+	#argparser.add_argument("--run_name", type=str, default="untitled", help="name of the run")
 
 	args = argparser.parse_args()
 
