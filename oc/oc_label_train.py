@@ -5,6 +5,7 @@ Runs the end model on it
 '''
 import sys
 import os
+sys.path.append('../')
 sys.path.append('../metal')
 sys.path.append('../heart-MRI-pytorch')
 sys.path.append('../data')
@@ -280,7 +281,7 @@ if __name__ == "__main__":
 	argparser.add_argument("--lstm_reduction",type=str,default="attention",help="LSTM reduction at output layer")
 
 	argparser.add_argument("--mask",type=bool,default=False,help="Selects whether to use segmented data")
-	argparser.add_argument("--checkpoint_dir", type=str, default="oc_checkpoints", help="dir to save checkpoints")
+	argparser.add_argument("--checkpoint_dir", type=str, default="oc_checkpoints_all/oc_checkpoint_label", help="dir to save checkpoints")
 
 	argparser.add_argument("--requires_grad", type=bool, default=False, help="Selects whether to freeze or finetune frame encoder")
 	argparser.add_argument("--train_labels", type=str, default="../data/temporal_labels/ours_400.npy", help="Path to labels for training")

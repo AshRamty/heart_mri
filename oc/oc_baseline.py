@@ -7,6 +7,7 @@ with hyperparameter tuning
 '''
 import sys
 import os
+sys.path.append('../')
 sys.path.append('../metal')
 sys.path.append('../heart-MRI-pytorch')
 sys.path.append('../data')
@@ -17,7 +18,7 @@ import torch
 import time
 import logging
 import warnings
-import pandas
+import pandas as pd
 from glob import glob
 from scipy.sparse import csr_matrix
 import torchvision
@@ -94,7 +95,8 @@ def load_labels(args):
 
 def cv_1_split(args,Ydev):
 	
-	data_list = glob(args.dev+'/la_4ch/*.npy') 
+	#data_list = glob(args.dev+'/la_4ch/*.npy') 
+	data_list = csv2list(args.dev_csv, args.dev, "la_4ch")
 	Y = np.reshape(Ydev,[len(data_list),50])   
 	indices = np.arange(len(data_list))
 
@@ -115,7 +117,8 @@ def cv_1_split(args,Ydev):
 	data_list = {}
 	data_list["train"] = data_list_train
 	data_list["dev"] = data_list_dev
-	data_list["test"] = glob(args.test + '/la_4ch/*.npy')
+	#data_list["test"] = glob(args.test + '/la_4ch/*.npy')
+	data_list["test"] = csv2list(args.test_csv, args.test, "la_4ch")
 	return data_list, Ytrain, Ydev
 
 
@@ -287,7 +290,7 @@ if __name__ == "__main__":
 
 	argparser.add_argument("--seed",type=int,default=123,help="random seed for initialisation")
 	argparser.add_argument("--mask",type=str,default=False,help="Selects whether to use segmented data")
-	argparser.add_argument("--checkpoint_dir", type=str, default="oc_checkpoints", help="dir to save checkpoints")
+	argparser.add_argument("--checkpoint_dir", type=str, default="oc_checkpoints_all/oc_baseline", help="dir to save checkpoints")
 
 	args = argparser.parse_args()
 

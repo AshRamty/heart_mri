@@ -5,6 +5,7 @@ with hyperparameter tuning
 '''
 import sys
 import os
+sys.path.append('../')
 sys.path.append('../metal')
 sys.path.append('../heart-MRI-pytorch')
 sys.path.append('../data')
@@ -15,7 +16,7 @@ import torch
 import time
 import logging
 import warnings
-import pandas
+import pandas as pd
 from glob import glob
 from scipy.sparse import csr_matrix
 import torchvision
@@ -277,7 +278,7 @@ if __name__ == "__main__":
 
 	argparser.add_argument("--seed",type=int,default=123,help="random seed for initialisation")
 	argparser.add_argument("--mask",type=str,default=False,help="Selects whether to use segmented data")
-	argparser.add_argument("--checkpoint_dir", type=str, default="oc_checkpoints", help="dir to save checkpoints")
+	argparser.add_argument("--checkpoint_dir", type=str, default="oc_checkpoints_all/oc_checkpoints_tune", help="dir to save checkpoints")
 
 	args = argparser.parse_args()
 

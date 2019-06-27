@@ -5,6 +5,7 @@ Does not include hyperparameter tuning
 '''
 import sys
 import os
+sys.path.append('../')
 sys.path.append('../metal')
 sys.path.append('../heart-MRI-pytorch')
 sys.path.append('../data')
@@ -26,10 +27,8 @@ import torch.optim as optim
 from torch.autograd import Variable
 from torch.utils.data import Dataset, DataLoader
 
-from dataloader_4ch import UKBB_LAX_Roll
 from models.frame.densenet_av import densenet_40_12_bc
 from utils import *
-from frame_encoder import FrameEncoderBAV, FrameEncoderOC, FrameEncoderOCDense
 
 from metal.label_model import LabelModel
 from metal.label_model.baselines import MajorityLabelVoter
@@ -37,7 +36,9 @@ from metal.end_model import EndModel
 from metal.contrib.modules import Encoder, LSTMModule
 from metal.analysis import lf_summary, confusion_matrix
 
+from dataloader_4ch import UKBB_LAX_Roll
 from sampler import ImbalancedDatasetSampler
+from frame_encoder import FrameEncoderBAV, FrameEncoderOC, FrameEncoderOCDense
 
 logger = logging.getLogger(__name__)
 
@@ -278,7 +279,7 @@ if __name__ == "__main__":
 	argparser.add_argument("--lstm_reduction",type=str,default="attention",help="LSTM reduction at output layer")
 
 	argparser.add_argument("--mask",type=bool,default=False,help="Selects whether to use segmented data")
-	argparser.add_argument("--checkpoint_dir", type=str, default="oc_checkpoints", help="dir to save checkpoints")
+	argparser.add_argument("--checkpoint_dir", type=str, default="oc_checkpoints_all/test", help="dir to save checkpoints")
 
 	argparser.add_argument("--requires_grad", type=bool, default=False, help="Selects whether to freeze or finetune frame encoder")
 	argparser.add_argument("--preprocess", type=bool, default=False, help="Selects whether to apply preprocessing (histogram equalization) to data")
