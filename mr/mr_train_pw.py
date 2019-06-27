@@ -211,7 +211,7 @@ if __name__ == "__main__":
 	argparser.add_argument("--seed",type=int,default=123,help="random seed for initialisation")
 	argparser.add_argument("--mask",type=str,default=False,help="Selects whether to use segmented data")
 	argparser.add_argument("--checkpoint_dir", type=str, default="mr_checkpoints", help="dir to save checkpoints")
-	argparser.add_argument("--pretrained_model_path", type=str, default="../oc_checkpoints_all/oc_checkpoints_400", help="dir of the best pretrained model")
+	argparser.add_argument("--pretrained_model_path", type=str, default="../oc/oc_checkpoints_all/oc_checkpoints_400", help="dir of the best pretrained model")
 
 	argparser.add_argument("--requires_grad", type=bool, default=False, help="Selects whether to freeze or finetune frame encoder")
 	argparser.add_argument("--preprocess", type=bool, default=False, help="Selects whether to apply preprocessing (histogram equalization) to data")

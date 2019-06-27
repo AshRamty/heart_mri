@@ -24,7 +24,7 @@ import torchvision.models as torch_models
 from metal.end_model import EndModel
 from metal.contrib.modules import Encoder
 
-from dataloader_4ch import UKBB_LAX_MR
+from dataloader_4ch import UKBB_MR_Framewise
 from frame_encoder import FrameEncoderOC
 from sampler import ImbalancedDatasetSampler
 
