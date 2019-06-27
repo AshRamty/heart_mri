@@ -6,6 +6,7 @@ The data for all the experiments can be found in the `/dfs/scratch0/ashwinir/hea
 The scripts use the following repositories. Please download them and add them to the path: 
 - metal: https://github.com/HazyResearch/metal
 - heart-MRI-pytorch: https://github.com/HazyResearch/heart-MRI/tree/pytorch
+
 The specifications to build the conda environment is provided in the `env_deps.txt` file
 
 ## Executing scripts
