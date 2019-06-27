@@ -4,13 +4,13 @@ Does not include hyperparameter tuning
 
 '''
 import sys
-#sys.path.append('../')
+sys.path.append('../')
 sys.path.append('../metal')
 sys.path.append('../heart-MRI-pytorch')
 sys.path.append('../data')
-sys.path.append('../dataloaders')
-sys.path.append('../frame_encoder')
-sys.path.append('../utils')
+#sys.path.append('../dataloaders')
+#sys.path.append('../frame_encoder')
+#sys.path.append('../utils')
 
 import numpy as np
 import argparse
@@ -26,13 +26,13 @@ from torch.utils.data import Dataset, DataLoader
 from metal.end_model import EndModel
 from metal.contrib.modules import Encoder, LSTMModule
 
-import ipdb; ipdb.set_trace()
+#import ipdb; ipdb.set_trace()
 #import metal.contrib.modules.resnet_cifar10 as resnet
 #from dataloaders.ukbb import UKBBCardiacMRI
 #from models.frame.densenet_av import DenseNet3, densenet_40_12_bc
-from dataloaders.dataloader_4ch import UKBB_LAX_MR
-from frame_encoder.frame_encoder import FrameEncoderOC
-from utils.sampler import ImbalancedDatasetSampler
+from dataloader_4ch import UKBB_LAX_MR
+from frame_encoder import FrameEncoderOC
+from sampler import ImbalancedDatasetSampler
 
 from utils import *
 from metrics import *
