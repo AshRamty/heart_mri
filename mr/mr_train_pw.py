@@ -5,6 +5,7 @@ Uses pretrained weights from open/close training
 
 '''
 import sys
+sys.path.append('../')
 sys.path.append('../metal')
 sys.path.append('../heart-MRI-pytorch')
 sys.path.append('../data')
@@ -24,9 +25,9 @@ from torch.utils.data import Dataset, DataLoader
 from metal.end_model import EndModel
 from metal.contrib.modules import Encoder, LSTMModule
 
-from dataloader.dataloader_4ch import UKBB_LAX_MR
-from frame_encoder.frame_encoder import FrameEncoderOC
-from utils.sampler import ImbalancedDatasetSampler
+from dataloader_4ch import UKBB_LAX_MR
+from frame_encoder import FrameEncoderOC
+from sampler import ImbalancedDatasetSampler
 
 from utils import *
 from metrics import *
@@ -213,7 +214,7 @@ if __name__ == "__main__":
 	argparser.add_argument("--pretrained_model_path", type=str, default="oc_checkpoints_pw", help="dir of the best pretrained model")
 
 	argparser.add_argument("--requires_grad", type=bool, default=False, help="Selects whether to freeze or finetune frame encoder")
-	argparser.add_argument("--preprocess", type=bool, default=True, help="Selects whether to apply preprocessing (histogram equalization) to data")
+	argparser.add_argument("--preprocess", type=bool, default=False, help="Selects whether to apply preprocessing (histogram equalization) to data")
 
 	#argparser.add_argument("--log_dir", type=str, default="metal_run_logs", help="directory to save run logs")
 	#argparser.add_argument("--run_dir", type=str, default="mr_pw", help="directory to save run within log_dir")

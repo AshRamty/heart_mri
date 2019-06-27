@@ -8,9 +8,6 @@ sys.path.append('../')
 sys.path.append('../metal')
 sys.path.append('../heart-MRI-pytorch')
 sys.path.append('../data')
-#sys.path.append('../dataloaders')
-#sys.path.append('../frame_encoder')
-#sys.path.append('../utils')
 
 import numpy as np
 import argparse
@@ -26,7 +23,6 @@ from torch.utils.data import Dataset, DataLoader
 from metal.end_model import EndModel
 from metal.contrib.modules import Encoder, LSTMModule
 
-#import ipdb; ipdb.set_trace()
 #import metal.contrib.modules.resnet_cifar10 as resnet
 #from dataloaders.ukbb import UKBBCardiacMRI
 #from models.frame.densenet_av import DenseNet3, densenet_40_12_bc
@@ -174,7 +170,7 @@ if __name__ == "__main__":
 	argparser.add_argument("--seed",type=int,default=123,help="random seed for initialisation")
 	argparser.add_argument("--mask",type=str,default=False,help="Selects whether to use segmented data")
 	argparser.add_argument("--checkpoint_dir", type=str, default="mr_checkpoints/test", help="dir to save checkpoints")
-	argparser.add_argument("--preprocess", type=bool, default=True, help="Selects whether to apply preprocessing (histogram equalization) to data")
+	argparser.add_argument("--preprocess", type=bool, default=False, help="Selects whether to apply preprocessing (histogram equalization) to data")
 	
 	args = argparser.parse_args()
 

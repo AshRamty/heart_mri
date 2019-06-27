@@ -4,6 +4,7 @@ Does not include hyperparameter tuning
 
 '''
 import sys
+sys.path.append('../')
 sys.path.append('../metal')
 sys.path.append('../heart-MRI-pytorch')
 sys.path.append('../data')
@@ -23,9 +24,9 @@ import torchvision.models as torch_models
 from metal.end_model import EndModel
 from metal.contrib.modules import Encoder
 
-from dataloader.dataloader_4ch import UKBB_LAX_MR
-from frame_encoder.frame_encoder import FrameEncoderOC
-from utils.sampler import ImbalancedDatasetSampler
+from dataloader_4ch import UKBB_LAX_MR
+from frame_encoder import FrameEncoderOC
+from sampler import ImbalancedDatasetSampler
 
 from utils import *
 from metrics import *
