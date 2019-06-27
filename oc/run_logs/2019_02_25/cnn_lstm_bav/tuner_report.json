@@ -1,0 +1,14 @@
+[
+ {
+  "idx": 0,
+  "time_elapsed": 1741.744246006012,
+  "search_params": {
+   "seed": 123,
+   "n_epochs": 5,
+   "batchnorm": true,
+   "dropout": 0,
+   "lr": 0.001
+  },
+  "score": 0.9629629629629629
+ }
+]
