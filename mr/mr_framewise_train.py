@@ -23,9 +23,9 @@ import torchvision.models as torch_models
 from metal.end_model import EndModel
 from metal.contrib.modules import Encoder
 
-from dataloader_4ch import UKBB_MR_Framewise
-from frame_encoder import FrameEncoderOC 
-from sampler import ImbalancedDatasetSampler
+from dataloader.dataloader_4ch import UKBB_LAX_MR
+from frame_encoder.frame_encoder import FrameEncoderOC
+from utils.sampler import ImbalancedDatasetSampler
 
 from utils import *
 from metrics import *
@@ -131,6 +131,7 @@ def train_model(args):
 	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy', 'precision', 'recall', 'f1','roc-auc'])
 
 	#import ipdb; ipdb.set_trace()
+	# saving dev set performance
 	Y_p, Y, Y_s = end_model._get_predictions(data_loader["dev"], break_ties='random', return_probs=True)
 	dev_labels = dev.labels
 	Y_s_0 =list(Y_s[:,0]) ; Y_s_1 = list(Y_s[:,1]); 
@@ -141,6 +142,7 @@ def train_model(args):
 	dev_ID.insert(0,"ID"); dev_LABEL.insert(0,"LABEL")
 	np.save(args.mr_result_filename + "_dev",np.column_stack((dev_ID,dev_LABEL,Y_p, Y, Y_s_0, Y_s_1)))
 
+	# saving test set performance
 	Y_p, Y, Y_s = end_model._get_predictions(data_loader["test"], break_ties='random', return_probs=True)
 	test_labels = test.labels
 	Y_s_0 =list(Y_s[:,0]) ; Y_s_1 = list(Y_s[:,1]); 
@@ -151,12 +153,6 @@ def train_model(args):
 	test_ID.insert(0,"ID"); test_LABEL.insert(0,"LABEL")
 	np.save(args.mr_result_filename + "_test",np.column_stack((test_ID,test_LABEL,Y_p, Y, Y_s_0, Y_s_1)))
 
-	# Test end model 
-	'''
-	if(test_loader != None):
-		end_model.score(test_loader, verbose=True, metric=['accuracy', 'precision', 'recall', 'f1'])
-
-	'''
 
 
 if __name__ == "__main__":

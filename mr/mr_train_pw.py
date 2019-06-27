@@ -24,9 +24,9 @@ from torch.utils.data import Dataset, DataLoader
 from metal.end_model import EndModel
 from metal.contrib.modules import Encoder, LSTMModule
 
-from dataloader_4ch import UKBB_LAX_MR
-from frame_encoder import FrameEncoderOC
-from sampler import ImbalancedDatasetSampler
+from dataloader.dataloader_4ch import UKBB_LAX_MR
+from frame_encoder.frame_encoder import FrameEncoderOC
+from utils.sampler import ImbalancedDatasetSampler
 
 from utils import *
 from metrics import *

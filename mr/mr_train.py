@@ -25,9 +25,9 @@ from metal.contrib.modules import Encoder, LSTMModule
 #import metal.contrib.modules.resnet_cifar10 as resnet
 #from dataloaders.ukbb import UKBBCardiacMRI
 #from models.frame.densenet_av import DenseNet3, densenet_40_12_bc
-from dataloader_4ch import UKBB_LAX_MR
-from frame_encoder import FrameEncoderOC
-from sampler import ImbalancedDatasetSampler
+from dataloader.dataloader_4ch import UKBB_LAX_MR
+from frame_encoder.frame_encoder import FrameEncoderOC
+from utils.sampler import ImbalancedDatasetSampler
 
 from utils import *
 from metrics import *
@@ -137,14 +137,10 @@ def train_model(args):
 		middle_dropout = dropout,
 		)
 
-
+	print('Dev Set Performance')
 	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy', 'precision', 'recall', 'f1','roc-auc'])
-	# Test end model 
-	'''
-	if(test_loader != None):
-		end_model.score(test_loader, verbose=True, metric=['accuracy', 'precision', 'recall', 'f1'])
-
-	'''
+	print('Test Set Performance')
+	end_model.score(data_loader["test"], verbose=True, metric=['accuracy', 'precision', 'recall', 'f1','roc-auc'])
 
 
 if __name__ == "__main__":
