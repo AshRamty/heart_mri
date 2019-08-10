@@ -1,6 +1,6 @@
 import sys
 sys.path.append('../metal')
-sys.path.append('../heart-MRI-pytorch')
+sys.path.append('../../heart-MRI')
 sys.path.append('../data')
 
 import numpy as np

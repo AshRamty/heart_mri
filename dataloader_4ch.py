@@ -368,11 +368,16 @@ class UKBB_MR_Framewise(Dataset):
 		#print(frame.shape) # (3,224,224)
 		#frame = torchvision.transforms.ToTensor(frame)
 		#frame = torch.from_numpy(frame)		
-
 		label = self.labels.iloc[idx, 1]
 		label = 2-label # converting to 1-indexing and making minority class = 1 - to change this
-		#print(label)
+		frame = torch.from_numpy(frame).float()
+		#label = torch.from_numpy(np.array(label)).double()
+        
+		#import pdb; pdb.set_trace()
+
+        #print(label)
 		#frame = torch.tensor(frame)
+        
 		return (frame, label)
 
 

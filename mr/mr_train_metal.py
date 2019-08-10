@@ -1,13 +1,12 @@
 '''
-Runs supervised learning on single-frame MR data
+Runs supervised learning on MR data
 Does not include hyperparameter tuning
 
 '''
-import sys, os
+import sys
 sys.path.append('../')
 sys.path.append('../metal')
 sys.path.append('../../heart-MRI')
-sys.path.append('../data')
 
 import numpy as np
 import argparse
@@ -19,12 +18,14 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable
 from torch.utils.data import Dataset, DataLoader
-import torchvision.models as torch_models
 
 from metal.end_model import EndModel
-from metal.contrib.modules import Encoder
+from metal.contrib.modules import Encoder, LSTMModule
 
-from dataloader_4ch import UKBB_MR_Framewise
+#import metal.contrib.modules.resnet_cifar10 as resnet
+#from dataloaders.ukbb import UKBBCardiacMRI
+#from models.frame.densenet_av import DenseNet3, densenet_40_12_bc
+from dataloader_4ch import UKBB_LAX_MR
 from frame_encoder import FrameEncoderOC
 from sampler import ImbalancedDatasetSampler
 
@@ -45,7 +46,7 @@ def load_dataset(args):
 	'''
 	Loading LAX 4ch data
 	'''
-	DataSet = UKBB_MR_Framewise
+	DataSet = UKBB_LAX_MR
 	train = DataSet(args.train, args.mask, seed=args.data_seed, preprocess = args.preprocess)
 	dev = DataSet(args.dev, args.mask, seed=args.data_seed, preprocess = args.preprocess)
 	if args.test:
@@ -71,38 +72,45 @@ def train_model(args):
 
 	# Create datasets and dataloaders
 	train, dev, test = load_dataset(args)
-	print('train size:',len(train)) # 
-	print('dev size:',len(dev)) # 
-	print('test size:',len(test)) # 
-	# data in tuple of the form (frame,label)
-	# frame shape (3,224,224)
+	#print('train size:',len(train)) # 250
+	#print('dev size:',len(dev)) # 250
+	#print('test size:',len(test)) # 250
+	# data in tuple of the form (series,label)
+	# series shape (50,3,224,224)
 
 	#import pdb; pdb.set_trace()
 
 	data_loader = get_data_loader(train, dev, test, args.batch_size)
 
+	hidden_size = 128 
 	num_classes = 2
 	encode_dim = 1000
 
-	# Define input encoder - can use the same 
-	#cnn_encoder = FrameEncoderOC
+	# Define input encoder
+	cnn_encoder = FrameEncoderOC
 
 	if(torch.cuda.is_available()):
 		device = 'cuda'
 	else:
 		device = 'cpu'
 
-	model = torch_models.resnet34(pretrained = False)
-	#model = model.double()
-	model = model.float().to(device)
+	# Define LSTM module
+	lstm_module = LSTMModule(
+		encode_dim,
+		hidden_size,
+		bidirectional=False,
+		verbose=False,
+		lstm_reduction="attention",
+		encoder_class=cnn_encoder,
+		)
 
 	# Define end model
 	end_model = EndModel(
-		input_module=model,
-		layer_out_dims=[encode_dim, num_classes],
+		input_module=lstm_module,
+		layer_out_dims=[hidden_size, num_classes],
 		optimizer="adam",
 		use_cuda=cuda,
-		input_batchnorm=True,
+		batchnorm=True,
 		seed=args.seed,
 		verbose=False,
 		)
@@ -121,41 +129,18 @@ def train_model(args):
 		progress_bar = True,
 		#loss_weights = [0.9,0.1],
 		batchnorm = 'False',
-		log_valid_metrics = ['accuracy','f1','roc-auc'],
-		checkpoint_metric = 'accuracy',
+		log_valid_metrics = ['accuracy','f1'],
+		checkpoint_metric = 'f1',
 		checkpoint_dir = args.checkpoint_dir,
-		validation_metric='accuracy',
+		#validation_metric='accuracy',
 		#input_dropout = 0.1,
 		middle_dropout = dropout,
 		)
 
+	print('Dev Set Performance')
 	end_model.score(data_loader["dev"], verbose=True, metric=['accuracy', 'precision', 'recall', 'f1','roc-auc'])
-
-	#import ipdb; ipdb.set_trace()
-	# saving dev set performance
-	Y_p, Y, Y_s = end_model._get_predictions(data_loader["dev"], break_ties='random', return_probs=True)
-	dev_labels = dev.labels
-	Y_s_0 =list(Y_s[:,0]) ; Y_s_1 = list(Y_s[:,1]); 
-	dev_ID = list(dev_labels["ID"]);dev_LABEL = list(dev_labels["LABEL"])  
-	Y_p = list(Y_p); Y = list(Y); 
-	Y_p.insert(0,"Y_p"),Y.insert(0,"Y"),
-	Y_s_0.insert(0,"Y_s_0");Y_s_1.insert(0, "Y_s_1")
-	dev_ID.insert(0,"ID"); dev_LABEL.insert(0,"LABEL")
-	dev_pth = os.path.join(args.mr_result_filename, "_dev")
-	np.save(dev_pth,np.column_stack((dev_ID,dev_LABEL,Y_p, Y, Y_s_0, Y_s_1)))
-
-	# saving test set performance
-	Y_p, Y, Y_s = end_model._get_predictions(data_loader["test"], break_ties='random', return_probs=True)
-	test_labels = test.labels
-	Y_s_0 =list(Y_s[:,0]) ; Y_s_1 = list(Y_s[:,1]); 
-	test_ID = list(test_labels["ID"]);test_LABEL = list(test_labels["LABEL"])  
-	Y_p = list(Y_p); Y = list(Y); 
-	Y_p.insert(0,"Y_p"),Y.insert(0,"Y"),
-	Y_s_0.insert(0,"Y_s_0");Y_s_1.insert(0, "Y_s_1")
-	test_ID.insert(0,"ID"); test_LABEL.insert(0,"LABEL")
-	test_pth = os.path.join(args.mr_result_filename, "_test")
-	np.save(test_pth,np.column_stack((test_ID,test_LABEL,Y_p, Y, Y_s_0, Y_s_1)))
-
+	print('Test Set Performance')
+	end_model.score(data_loader["test"], verbose=True, metric=['accuracy', 'precision', 'recall', 'f1','roc-auc'])
 
 
 if __name__ == "__main__":
@@ -183,10 +168,9 @@ if __name__ == "__main__":
 
 	argparser.add_argument("--seed",type=int,default=123,help="random seed for initialisation")
 	argparser.add_argument("--mask",type=str,default=False,help="Selects whether to use segmented data")
-	argparser.add_argument("--checkpoint_dir", type=str, default="mr_checkpoints", help="dir to save checkpoints")
+	argparser.add_argument("--checkpoint_dir", type=str, default="mr_checkpoints/test", help="dir to save checkpoints")
 	argparser.add_argument("--preprocess", type=bool, default=False, help="Selects whether to apply preprocessing (histogram equalization) to data")
 	
-	argparser.add_argument("--mr_result_filename", type=str, default="mr_framewise_results/mr_test", help="filename to save result")
 	args = argparser.parse_args()
 
 	if not args.quiet:
